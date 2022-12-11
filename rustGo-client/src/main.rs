@@ -1,13 +1,17 @@
+pub mod game;
+pub mod liberty;
+pub mod board;
+
 use yew::{html, function_component, Html};
+use board::BoardFC;
 
 #[function_component]
 fn App() -> Html {
     let test = "gitara";
-    let board = vec!["test1", "test2", "test3", "test4", "test5", "test6", "test7", "test8", "test9"];
 
     html! {
         <main>
-            <div class="board_3x3">{board.iter().map(|_| html!{<div class="elem"></div>}).collect::<Html>()}</div>
+            <BoardFC />
         </main>
     }
 }
@@ -15,3 +19,18 @@ fn App() -> Html {
 fn main() {
     yew::Renderer::<App>::new().render();
 }
+
+/* <section class="board--main--9x9">
+                    <div class="board--main__row">
+                        <div class="board--main__liberty"></div>
+                        <div class="board--main__liberty"></div>
+                        <div class="board--main__liberty"></div>
+                        <div class="board--main__liberty"></div>
+                        <div class="board--main__liberty"></div>
+                        <div class="board--main__liberty"></div>
+                        <div class="board--main__liberty"></div>
+                        <div class="board--main__liberty"></div>
+                        <div class="board--main__liberty"></div>
+                        <div class="board--main__liberty"></div>
+                    </div>
+                </section> */
