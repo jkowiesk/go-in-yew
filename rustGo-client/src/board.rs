@@ -1,19 +1,34 @@
 use yew::prelude::*;
 
 use crate::liberty::LibertyFC;
+use crate::game::Game;
 
 #[function_component]
 pub fn BoardFC() -> Html {
-    let board = 1..=81;
-    let mut liberties = 1..=100;
+    let game = use_context::<Game>().expect("no ctx found");
+    let board = 0..81;
+
+    let on_click = {
+
+    };
 
     html! {
-        <ul class="board--back--9x9">
-            {board.map(|_| html!{
-            <li class="board--back__square--9x9">
-                <LibertyFC />
-            </li>
-            }).collect::<Html>()}
-        </ul>
+        <>
+        <main>
+            <div class="board__max_width">
+                <ul class="board__back--9x9">
+                    {board.map(|_| html!{
+                    <li class="board__back__square--9x9"></li>
+                    }).collect::<Html>()}
+                </ul>
+                <section class="board__liberties">
+                        {game.liberties.iter().map(|liberty| html!{
+                            <LibertyFC liberty={*liberty}/>
+                        }).collect::<Html>()}
+                </section>
+            </div>
+        </main>
+        // <button onclick={Callback::from()}></button>
+        </>
     }
 }

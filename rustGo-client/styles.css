@@ -66,40 +66,46 @@ main {
   height: 100%;
 }
 
-.board--back--9x9 {
+.board__max_width {
   position: relative;
+  width: 940px;
+  height: 940px;
+}
+
+.board__back--9x9 {
   display: grid;
   grid-template-rows: repeat(9, 1fr);
   grid-template-columns: repeat(9, 1fr);
   background: hsl(35, 34%, 56%);
   width: 900px;
   height: 900px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
 }
 
-.board--back__square--9x9 {
+.board__back__square--9x9 {
   width: 100px;
   height: 100px;
   border: 2px solid black;
   position: relative;
 }
 
-.board--back__liberty--top_left--9x9 {
-  left: 0;
+.board__liberties {
+  display: grid;
+  grid-template-rows: repeat(10, 1fr);
+  grid-template-columns: repeat(10, 1fr);
+  gap: 60px;
 }
 
-.board--main--9x9 {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-}
-
-.liberty--default {
-  position: absolute;
-  top: 0;
+.liberty {
   border-radius: 100%;
-  width: 30px;
-  height: 30px;
-  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  z-index: 10;
 }
 
 .liberty--white {
@@ -109,24 +115,3 @@ main {
 .liberty--black {
   background-color: black;
 }
-
-/* .board__elem--9x9:nth-child(1) {
-  width: 100px;
-  height: 100px;
-  border: 4px solid black;
-  border-right: 0;
-  border-bottom: 0;
-}
-
-.board__elem--9x9:nth-child(9) {
-  width: 100px;
-  height: 100px;
-  outline: 2px solid black;
-}
-
-.board__elem--9x9:nth-child(81) {
-  width: 100px;
-  height: 100px;
-  outline: 2px solid black;
-}
- */

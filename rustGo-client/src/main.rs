@@ -2,35 +2,27 @@ pub mod game;
 pub mod liberty;
 pub mod board;
 
+use yew::prelude::*;
 use yew::{html, function_component, Html};
+
 use board::BoardFC;
+use game::{Size, Game, init_liberties};
 
 #[function_component]
 fn App() -> Html {
-    let test = "gitara";
+    let game = use_reducer(|| Game {
+        size: Size::nine.to_owned(),
+        liberties: init_liberties(Size::nine).to_owned(),
+    });
+
 
     html! {
-        <main>
+        <ContextProvider<Game> context={game}>
             <BoardFC />
-        </main>
+        </ContextProvider<Game>>
     }
 }
 
 fn main() {
     yew::Renderer::<App>::new().render();
 }
-
-/* <section class="board--main--9x9">
-                    <div class="board--main__row">
-                        <div class="board--main__liberty"></div>
-                        <div class="board--main__liberty"></div>
-                        <div class="board--main__liberty"></div>
-                        <div class="board--main__liberty"></div>
-                        <div class="board--main__liberty"></div>
-                        <div class="board--main__liberty"></div>
-                        <div class="board--main__liberty"></div>
-                        <div class="board--main__liberty"></div>
-                        <div class="board--main__liberty"></div>
-                        <div class="board--main__liberty"></div>
-                    </div>
-                </section> */

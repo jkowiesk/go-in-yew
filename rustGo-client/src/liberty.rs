@@ -1,35 +1,21 @@
 use yew::prelude::*;
 
-pub enum LibertyKind {
-    default,
+use crate::game::{Liberty, Stone};
+
+#[derive(Properties, PartialEq)]
+pub struct Props {
+    pub liberty: Liberty,
 }
-
-pub enum Stone {
-    black,
-    white
-}
-
-pub struct LibertyState {
-    pub kind: LibertyKind,
-    pub owner: Option<Stone>,
-}
-
-const INIT_STATE: LibertyState = LibertyState {
-    kind: LibertyKind::default,
-    owner: Some(Stone::white),
-};
-
 
 #[function_component]
-pub fn LibertyFC() -> Html {
-    let kind = use_state(|| INIT_STATE.kind);
-    let owner = use_state(|| INIT_STATE.owner);
+pub fn LibertyFC(props: &Props) -> Html {
+    let Props { liberty } = props;
 
-    let class_name = match &*owner {
+    let class_name = match &liberty.owner {
         Some(stone) => {
             match stone {
-                Stone::black => "liberty--default liberty--black",
-                Stone::white => "liberty--default liberty--white"
+                Stone::black => "liberty liberty--black",
+                Stone::white => "liberty liberty--white"
             }
         },
         None => ""
