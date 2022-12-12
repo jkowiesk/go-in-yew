@@ -15,7 +15,7 @@ html,
 body,
 #__next {
   height: 100%;
-  background-color: aquamarine;
+  background-color: rgb(113, 209, 241);
 }
 
 body {
@@ -109,7 +109,7 @@ main {
 }
 
 .liberty--white {
-  background-color: white;
+  background-color: whitesmoke;
 }
 
 .liberty--black {

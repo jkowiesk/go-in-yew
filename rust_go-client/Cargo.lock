@@ -513,7 +513,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rustGo-client"
+name = "rust_go-client"
 version = "0.1.0"
 dependencies = [
  "yew",

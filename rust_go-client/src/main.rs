@@ -17,9 +17,9 @@ fn App() -> Html {
 
 
     html! {
-        <ContextProvider<Game> context={game}>
+        <ContextProvider<UseReducerHandle<Game>> context={game}>
             <BoardFC />
-        </ContextProvider<Game>>
+        </ContextProvider<UseReducerHandle<Game>>>
     }
 }
 

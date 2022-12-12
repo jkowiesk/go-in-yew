@@ -2,7 +2,6 @@ use std::{rc::Rc};
 
 use yew::prelude::*;
 
-
 #[derive(Clone, Debug, PartialEq)]
 pub enum Size {
     nine
@@ -27,22 +26,32 @@ pub struct Game {
     pub liberties: Vec<Liberty>,
 }
 
-enum EventAction {
+pub enum EventAction {
     place
 }
 
-struct Event {
-    action: EventAction,
-    payload: i32,
+pub struct Event {
+    pub event_type: EventAction,
+    pub payload: usize,
 }
 
 impl Reducible for Game {
     type Action = Event;
 
     fn reduce(self: Rc<Self>, action: Self::Action) -> Rc<Self> {
-        match action {
-            EventAction::place => Self {size: self.size, liberties}.into()
-        }
+        let mut liberties = self.liberties.clone();
+
+        match action.event_type {
+            EventAction::place => match &liberties[action.payload].owner {
+                Some(stone) => match &stone {
+                    Stone::black => {liberties[action.payload].owner = Some(Stone::white);},
+                    Stone::white => {liberties[action.payload].owner = Some(Stone::black);}
+                },
+                None => {}
+            }
+        };
+
+        Self {size: self.size.clone(), liberties}.into()
     }
 }
 

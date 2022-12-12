@@ -1,15 +1,16 @@
 use yew::prelude::*;
 
 use crate::liberty::LibertyFC;
-use crate::game::Game;
+use crate::game::{Game, Event, EventAction};
 
 #[function_component]
 pub fn BoardFC() -> Html {
-    let game = use_context::<Game>().expect("no ctx found");
+    let game = use_context::<UseReducerHandle<Game>>().expect("no ctx found");
     let board = 0..81;
 
-    let on_click = {
-
+    let change_token = {
+        let game = game.clone();
+        Callback::from(move |_| game.dispatch(Event {event_type: EventAction::place, payload: 0 }))
     };
 
     html! {
@@ -28,7 +29,9 @@ pub fn BoardFC() -> Html {
                 </section>
             </div>
         </main>
-        // <button onclick={Callback::from()}></button>
+        <button  onclick={change_token}>
+            { "Click me!" }
+        </button>
         </>
     }
 }
