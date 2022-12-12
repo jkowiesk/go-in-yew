@@ -11,8 +11,8 @@ use game::{Size, Game, init_liberties};
 #[function_component]
 fn App() -> Html {
     let game = use_reducer(|| Game {
-        size: Size::nine.to_owned(),
-        liberties: init_liberties(Size::nine).to_owned(),
+        size: Size::Nine.to_owned(),
+        liberties: init_liberties(Size::Nine).to_owned(),
     });
 
 

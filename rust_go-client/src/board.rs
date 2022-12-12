@@ -1,17 +1,12 @@
 use yew::prelude::*;
 
 use crate::liberty::LibertyFC;
-use crate::game::{Game, Event, EventAction};
+use crate::game::{Game};
 
 #[function_component]
 pub fn BoardFC() -> Html {
     let game = use_context::<UseReducerHandle<Game>>().expect("no ctx found");
     let board = 0..81;
-
-    let change_token = {
-        let game = game.clone();
-        Callback::from(move |_| game.dispatch(Event {event_type: EventAction::place, payload: 0 }))
-    };
 
     html! {
         <>
@@ -24,14 +19,11 @@ pub fn BoardFC() -> Html {
                 </ul>
                 <section class="board__liberties">
                         {game.liberties.iter().map(|liberty| html!{
-                            <LibertyFC liberty={*liberty}/>
+                            <LibertyFC game={game.clone()} liberty={*liberty}/>
                         }).collect::<Html>()}
                 </section>
             </div>
         </main>
-        <button  onclick={change_token}>
-            { "Click me!" }
-        </button>
         </>
     }
 }
