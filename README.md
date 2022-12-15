@@ -4,13 +4,25 @@ Projekt składa się z dwóch komponentów - klienta (kod źródłowy w katalogu
 
 ## Uruchamianie aplikacji
 
-Możliwe jest uruchomienie osobno klienta i serwera, jak i obu komponentów naraz. Budowanie i uruchamianie projektu zostało zautomatyzowane przy użyciu Docker Compose. Aby uruchomić oba komponenty, znajdując się w katalogu głównym repozytorium należy wykonać komendę
+Możliwe jest uruchomienie osobno klienta i serwera, jak i obu komponentów naraz. Budowanie i uruchamianie projektu zostało zautomatyzowane przy użyciu [`docker compose`](https://docs.docker.com/compose/install/). Aby uruchomić oba komponenty, znajdując się w katalogu głównym repozytorium należy wykonać komendę
 
 ```
 docker compose up
 ```
 
-W celu uruchomienia tylko jednego komponentu, należy przejść do odpowiadającemgo mu podkatalogu poprzez wykonanie komendy `cd rust_go-client` lub `cd rust_go-server` i z poziomu danego podkatalogu wykonać
+W celu uruchomienia tylko jednego komponentu, należy przejść do odpowiadającemgo mu podkatalogu poprzez wykonanie komendy 
+
+```
+cd rust_go-client
+```
+
+lub 
+
+```
+cd rust_go-server
+``` 
+
+i z poziomu danego podkatalogu wykonać
 
 ```
 docker compose up
@@ -32,7 +44,7 @@ W przypadku klienta przed uruchomieniem należy wykonać kilka dodatkowych krok�
 rustup target add wasm32-unknown-unknown
 ```
 
-Następnie należy zainstalować `trunk` - bundler aplikacji wykorzysujących WASM dla Rusta.
+Następnie należy zainstalować [`trunk`](https://trunkrs.dev/) - bundler aplikacji wykorzysujących WASM dla Rusta.
 
 ```
 cargo install trunk
