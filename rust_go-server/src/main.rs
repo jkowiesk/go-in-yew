@@ -3,7 +3,8 @@ use websocket::sync::Server;
 use websocket::OwnedMessage;
 
 fn main() {
-    let server = Server::bind("127.0.0.1:8888").expect("Failed to bind to server address");
+    let server =
+        Server::bind("127.0.0.1:8888").expect("Failed to bind to server address");
 
     for request in server.filter_map(Result::ok) {
         thread::spawn(move || {
@@ -21,9 +22,12 @@ fn main() {
             println!("Connection from {}", ip);
 
             let message = OwnedMessage::Text("Hello".to_string());
-            client.send_message(&message).expect("Failed to send message");
+            client
+                .send_message(&message)
+                .expect("Failed to send message");
 
-            let (mut receiver, mut sender) = client.split().expect("Failed to split client");
+            let (mut receiver, mut sender) =
+                client.split().expect("Failed to split client");
 
             for message in receiver.incoming_messages() {
                 let message = message.expect("Failed to receive message");
@@ -43,7 +47,9 @@ fn main() {
                             .send_message(&message)
                             .expect("Failed to send pong message");
                     }
-                    _ => sender.send_message(&message).expect("Failed to send message"),
+                    _ => sender
+                        .send_message(&message)
+                        .expect("Failed to send message"),
                 }
             }
         });

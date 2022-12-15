@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use crate::game::{Liberty, Stone, Game, Event, EventAction};
+use crate::game::{Event, EventAction, Game, Liberty, Stone};
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
@@ -16,17 +16,20 @@ pub fn LibertyFC(props: &Props) -> Html {
 
     let place_stone = {
         let game = game.clone();
-        Callback::from(move |_| game.dispatch(Event {event_type: EventAction::Place, payload: liberty.idx }))
+        Callback::from(move |_| {
+            game.dispatch(Event {
+                event_type: EventAction::Place,
+                payload: liberty.idx,
+            })
+        })
     };
 
     let class_name = match &liberty.owner {
-        Some(stone) => {
-            match stone {
-                Stone::Black => "liberty liberty--black",
-                Stone::White => "liberty liberty--white"
-            }
+        Some(stone) => match stone {
+            Stone::Black => "liberty liberty--black",
+            Stone::White => "liberty liberty--white",
         },
-        None => "liberty liberty--empty"
+        None => "liberty liberty--empty",
     };
 
     html! {

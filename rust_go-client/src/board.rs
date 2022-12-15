@@ -1,7 +1,7 @@
 use yew::prelude::*;
 
+use crate::game::Game;
 use crate::liberty::LibertyFC;
-use crate::game::{Game};
 
 #[function_component]
 pub fn BoardFC() -> Html {
