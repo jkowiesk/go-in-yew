@@ -23,8 +23,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-ul {
+ul,
+button {
   list-style-type: none;
+  border: 0;
+  padding: 0;
 }
 
 img,
@@ -68,8 +71,8 @@ main {
 
 .board__max_width {
   position: relative;
-  width: 940px;
-  height: 940px;
+  width: 960px;
+  height: 960px;
 }
 
 .board__back--9x9 {
@@ -98,13 +101,13 @@ main {
   display: grid;
   grid-template-rows: repeat(10, 1fr);
   grid-template-columns: repeat(10, 1fr);
-  gap: 60px;
+  gap: 40px;
 }
 
 .liberty {
   border-radius: 100%;
-  width: 40px;
-  height: 40px;
+  width: 60px;
+  height: 60px;
   z-index: 10;
 }
 
@@ -114,4 +117,12 @@ main {
 
 .liberty--black {
   background-color: black;
+}
+.liberty--empty {
+  background-color: transparent;
+}
+
+.liberty--empty:hover {
+  background-color: white;
+  opacity: 50%;
 }
