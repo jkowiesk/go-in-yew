@@ -81,3 +81,17 @@ i wykonać komendę
 ```
 cargo test
 ```
+
+## Formatowanie
+
+Aby zachować spójne formatowanie korzystamy z narzędzia `cargo-fmt`. Przed użyciem należy je zainstalować poprzez
+
+```
+rustup component add rustfmt
+```
+
+Następnie po wykonaniu zmian w kodzie, należy wykonać
+
+```
+cargo fmt
+```
