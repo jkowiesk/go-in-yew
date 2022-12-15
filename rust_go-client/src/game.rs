@@ -3,8 +3,9 @@ use std::{rc::Rc};
 use yew::prelude::*;
 
 #[derive(Clone, Debug, PartialEq)]
-pub enum Size {
-    Nine
+pub enum BoardSize {
+    Nine,
+    Thirteen
 }
 
 #[derive(Clone, Debug, PartialEq, Copy)]
@@ -22,7 +23,7 @@ pub struct Liberty {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Game {
-    pub size: Size,
+    pub size: BoardSize,
     pub liberties: Vec<Liberty>,
 }
 
@@ -55,8 +56,24 @@ impl Reducible for Game {
     }
 }
 
-pub fn init_liberties(size: Size) -> Vec<Liberty> {
+pub fn init_liberties(size: BoardSize) -> Vec<Liberty> {
     match size {
-        Size::Nine => (0..100).map(|i| Liberty { idx: i, owner: None }).collect()
+        BoardSize::Nine => (0..100).map(|i| Liberty { idx: i, owner: None }).collect(),
+        BoardSize::Thirteen => (0..196).map(|i| Liberty { idx: i, owner: None }).collect()
+    }
+}
+
+mod tests {
+    use super::*;
+    #[test]
+    fn test_init_liberties_9x9() {
+        let liberties = init_liberties(BoardSize::Nine);
+        assert!(liberties == (0..100).map(|i| Liberty { idx: i, owner: None }).collect::<Vec<Liberty>>());
+    }
+
+    #[test]
+    fn test_init_liberties_13x13() {
+        let liberties = init_liberties(BoardSize::Thirteen);
+        assert!(liberties == (0..196).map(|i| Liberty { idx: i, owner: None }).collect::<Vec<Liberty>>());
     }
 }
