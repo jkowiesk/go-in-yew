@@ -35,7 +35,7 @@ pub enum EventAction {
     Place
 }
 
-/// represents an even happening in the game, which has an action type and action details 
+/// represents an even happening in the game, which has an action type and action details
 pub struct Event {
     pub event_type: EventAction,
     pub payload: usize,
@@ -61,6 +61,7 @@ impl Reducible for Game {
     }
 }
 
+/// initializes all fields on the board with empty liberties
 pub fn init_liberties(size: BoardSize) -> Vec<Liberty> {
     match size {
         BoardSize::Nine => (0..100).map(|i| Liberty { idx: i, owner: None }).collect(),
