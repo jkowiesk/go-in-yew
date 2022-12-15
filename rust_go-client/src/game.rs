@@ -4,8 +4,9 @@ use yew::prelude::*;
 
 /// represents the size of the board, which can be chosen at the beginng of the game
 #[derive(Clone, Debug, PartialEq)]
-pub enum Size {
-    Nine
+pub enum BoardSize {
+    Nine,
+    Thirteen
 }
 
 /// reprezents a stone placed on the board, which can be either black or white
@@ -25,7 +26,7 @@ pub struct Liberty {
 /// represents the state of the game
 #[derive(Clone, Debug, PartialEq)]
 pub struct Game {
-    pub size: Size,
+    pub size: BoardSize,
     pub liberties: Vec<Liberty>,
 }
 
@@ -60,9 +61,24 @@ impl Reducible for Game {
     }
 }
 
-/// initializes all fields on the board with empty liberties
-pub fn init_liberties(size: Size) -> Vec<Liberty> {
+pub fn init_liberties(size: BoardSize) -> Vec<Liberty> {
     match size {
-        Size::Nine => (0..100).map(|i| Liberty { idx: i, owner: None }).collect()
+        BoardSize::Nine => (0..100).map(|i| Liberty { idx: i, owner: None }).collect(),
+        BoardSize::Thirteen => (0..196).map(|i| Liberty { idx: i, owner: None }).collect()
+    }
+}
+
+mod tests {
+    use super::*;
+    #[test]
+    fn test_init_liberties_9x9() {
+        let liberties = init_liberties(BoardSize::Nine);
+        assert!(liberties == (0..100).map(|i| Liberty { idx: i, owner: None }).collect::<Vec<Liberty>>());
+    }
+
+    #[test]
+    fn test_init_liberties_13x13() {
+        let liberties = init_liberties(BoardSize::Thirteen);
+        assert!(liberties == (0..196).map(|i| Liberty { idx: i, owner: None }).collect::<Vec<Liberty>>());
     }
 }
