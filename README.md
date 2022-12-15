@@ -36,7 +36,9 @@ W celu uruchomienia serwera wystarczy przejść do podkatalogu `rust_go-server` 
 cargo run
 ```
 
-która zbuduje i uruchomi program.  
+która zbuduje i uruchomi program.
+
+> UWAGA: Jeżeli wykonanie komendy `cargo run` zakończy się błedem ``` error: failed to run custom build command for `openssl-sys v0.9.79` ```, należy doinstalować pakiety OpenSSL. Przykładowo w systemie Ubuntu można to zrobić poprzez `sudo apt install libssl-dev`. 
 
 W przypadku klienta przed uruchomieniem należy wykonać kilka dodatkowych kroków. Po pierwsze należy dodać WASM jako cel budowania dla Rusta poprzez komendę
 
@@ -65,3 +67,17 @@ cargo doc --no-deps --open
 ```
 
 która zbuduje dokumentację, a następnie otworzy ją w nowej karcie przeglądarki.
+
+## Testy jednostkowe
+
+Aby uruchomić testy jednostkowe dla klienta, należy przejść do odpowiedniego podkatalogu
+
+```
+cd rust_go-client
+```
+
+i wykonać komendę
+
+```
+cargo test
+```
