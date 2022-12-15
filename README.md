@@ -43,3 +43,13 @@ Po wykonaniu tych kroków możemy uruchomić program wykonując komendę
 ```
 trunk serve
 ```
+
+## Dokumentacja projektu
+
+W celu utworzenia dokumentacji technicznej korzystamy z `cargo`, które posiada możliwość automatycznej generacji dokumentacji. W celu skorzystania z niej należy przejść do podfolderu odpowiadającego komponentowi którego dokumentację chcemy wygenerować i wykonać komendę
+
+```
+cargo doc --no-deps --open
+```
+
+która zbuduje dokumentację, a następnie otworzy ją w nowej karcie przeglądarki.
