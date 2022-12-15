@@ -2,4 +2,4 @@ services:
   server:
     build: .
     ports:
-      - '30080:30080'
+      - '8888:8888'
