@@ -69,8 +69,10 @@ pub fn init_liberties(size: BoardSize) -> Vec<Liberty> {
     }
 }
 
+#[cfg(test)]
 mod tests {
     use super::*;
+
     #[test]
     fn test_init_liberties_9x9() {
         let liberties = init_liberties(BoardSize::Nine);
