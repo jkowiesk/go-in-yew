@@ -1,17 +1,20 @@
-use std::net::TcpListener;
-use std::thread::spawn;
-use tungstenite::accept;
+use ws::{listen, CloseCode, Handler, Handshake, Message, Result, Sender};
+use std::env;
 
-/// A WebSocket echo server
-fn main () {
-    let server = TcpListener::bind("127.0.0.1:8888").unwrap();
-    for stream in server.incoming() {
-        spawn (move || {
-            let mut websocket = accept(stream.unwrap()).unwrap();
-            loop {
-                let msg = websocket.read_message().unwrap();
 
-            }
-        });
-    }
+struct User {
+    nick: String,
+    ws: Sender
+}
+
+
+
+
+fn main() {
+    listen("127.0.0.1:8888", |out| {
+        move |msg| {
+            println!("{}", msg);
+            out.send(msg)
+        }
+    }).unwrap();
 }
