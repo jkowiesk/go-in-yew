@@ -5,35 +5,6 @@ use yew_agent::{Bridge, Bridged};
 
 use crate::web_service::WebsocketService;
 
-pub enum Msg {
-    HandleMsg(String),
-    SubmitMessage,
-}
-
-#[derive(Deserialize)]
-struct MessageData {
-    from: String,
-    message: String,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-#[serde(rename_all = "lowercase")]
-pub enum MsgTypes {
-    Message,
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct WebSocketMessage {
-    message_type: MsgTypes,
-    data: Option<String>,
-}
-
-#[derive(Clone)]
-struct UserProfile {
-    name: String,
-    avatar: String,
-}
 
 /// represents the size of the board, which can be chosen at the beginng of the game
 #[derive(Clone, Debug, PartialEq)]
