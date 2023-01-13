@@ -1,35 +1,35 @@
 use yew::prelude::*;
 
-use crate::game::{Event, EventAction, Game, Liberty, Stone};
+use crate::game::{Event, EventAction, Game, Field, Stone};
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
-    pub liberty: Liberty,
+    pub field: Field,
     pub game: UseReducerHandle<Game>,
 }
 
 #[function_component]
-pub fn LibertyFC(props: &Props) -> Html {
-    let Props { liberty, game } = props;
+pub fn FieldFC(props: &Props) -> Html {
+    let Props { field, game } = props;
     let game = game.clone();
-    let liberty = liberty.clone();
+    let field = field.clone();
 
     let place_stone = {
         let game = game.clone();
         Callback::from(move |_| {
             game.dispatch(Event {
                 event_type: EventAction::Place,
-                payload: liberty.idx,
+                payload: field.idx,
             })
         })
     };
 
-    let class_name = match &liberty.owner {
+    let class_name = match &field.owner {
         Some(stone) => match stone {
-            Stone::Black => "liberty liberty--black",
-            Stone::White => "liberty liberty--white",
+            Stone::Black => "field field--black",
+            Stone::White => "field field--white",
         },
-        None => "liberty liberty--empty",
+        None => "field field--empty",
     };
 
     html! {

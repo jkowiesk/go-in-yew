@@ -1,14 +1,14 @@
 pub mod board;
 pub mod game;
 pub mod web_service;
-pub mod liberty;
+pub mod field;
 pub mod player;
 
 use yew::prelude::*;
 use yew::{function_component, html, Html};
 
 use board::BoardFC;
-use game::{init_liberties, BoardSize, Game};
+use game::{init_fields, BoardSize, Game};
 use web_service::WebsocketService;
 use gloo_console::log;
 use serde_json;
@@ -19,7 +19,7 @@ fn App() -> Html {
     let wss = WebsocketService::new();
     let game = use_reducer(|| Game {
         size: BoardSize::Nine.to_owned(),
-        liberties: init_liberties(BoardSize::Nine).to_owned(),
+        fields: init_fields(BoardSize::Nine).to_owned(),
     });
 
 

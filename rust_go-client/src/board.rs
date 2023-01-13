@@ -1,7 +1,7 @@
 use yew::prelude::*;
 
 use crate::game::Game;
-use crate::liberty::LibertyFC;
+use crate::field::FieldFC;
 
 #[function_component]
 pub fn BoardFC() -> Html {
@@ -17,9 +17,9 @@ pub fn BoardFC() -> Html {
                     <li class="board__back__square--9x9"></li>
                     }).collect::<Html>()}
                 </ul>
-                <section class="board__liberties">
-                        {game.liberties.iter().map(|liberty| html!{
-                            <LibertyFC game={game.clone()} liberty={*liberty}/>
+                <section class="board__fields">
+                        {game.fields.iter().map(|field| html!{
+                            <FieldFC game={game.clone()} field={*field}/>
                         }).collect::<Html>()}
                 </section>
             </div>
