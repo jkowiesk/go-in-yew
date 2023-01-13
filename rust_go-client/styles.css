@@ -97,32 +97,32 @@ main {
   position: relative;
 }
 
-.board__liberties {
+.board__fields {
   display: grid;
   grid-template-rows: repeat(10, 1fr);
   grid-template-columns: repeat(10, 1fr);
   gap: 40px;
 }
 
-.liberty {
+.field {
   border-radius: 100%;
   width: 60px;
   height: 60px;
   z-index: 10;
 }
 
-.liberty--white {
+.field--white {
   background-color: whitesmoke;
 }
 
-.liberty--black {
+.field--black {
   background-color: black;
 }
-.liberty--empty {
+.field--empty {
   background-color: transparent;
 }
 
-.liberty--empty:hover {
+.field--empty:hover {
   background-color: white;
   opacity: 50%;
 }

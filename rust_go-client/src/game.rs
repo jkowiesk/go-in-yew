@@ -20,9 +20,9 @@ pub enum Stone {
     White,
 }
 
-/// represents a liberty, which is a vacant point on the board
+/// represents a field, which is a vacant point on the board
 #[derive(Clone, Debug, PartialEq, Copy)]
-pub struct Liberty {
+pub struct Field {
     pub idx: usize,
     pub owner: Option<Stone>,
 }
@@ -31,7 +31,7 @@ pub struct Liberty {
 #[derive(Clone, Debug, PartialEq)]
 pub struct Game {
     pub size: BoardSize,
-    pub liberties: Vec<Liberty>,
+    pub fields: Vec<Field>,
 }
 
 /// represents an action that a player can take during the game
@@ -49,43 +49,43 @@ impl Reducible for Game {
     type Action = Event;
 
     fn reduce(self: Rc<Self>, action: Self::Action) -> Rc<Self> {
-        let mut liberties = self.liberties.clone();
+        let mut fields = self.fields.clone();
 
         match action.event_type {
-            EventAction::Place => match &liberties[action.payload].owner {
+            EventAction::Place => match &fields[action.payload].owner {
                 Some(stone) => match &stone {
                     Stone::Black => {
-                        liberties[action.payload].owner = Some(Stone::White);
+                        fields[action.payload].owner = Some(Stone::White);
                     }
                     Stone::White => {
-                        liberties[action.payload].owner = Some(Stone::Black);
+                        fields[action.payload].owner = Some(Stone::Black);
                     }
                 },
                 None => {
-                    liberties[action.payload].owner = Some(Stone::Black);
+                    fields[action.payload].owner = Some(Stone::Black);
                 }
             },
         };
 
         Self {
             size: self.size.clone(),
-            liberties,
+            fields,
         }
         .into()
     }
 }
 
-/// initializes all fields on the board with empty liberties
-pub fn init_liberties(size: BoardSize) -> Vec<Liberty> {
+/// initializes all fields on the board with empty fields
+pub fn init_fields(size: BoardSize) -> Vec<Field> {
     match size {
         BoardSize::Nine => (0..100)
-            .map(|i| Liberty {
+            .map(|i| Field {
                 idx: i,
                 owner: None,
             })
             .collect(),
         BoardSize::Thirteen => (0..196)
-            .map(|i| Liberty {
+            .map(|i| Field {
                 idx: i,
                 owner: None,
             })
@@ -98,30 +98,30 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_init_liberties_9x9() {
-        let liberties = init_liberties(BoardSize::Nine);
+    fn test_init_fields_9x9() {
+        let fields = init_fields(BoardSize::Nine);
         assert!(
-            liberties
+            fields
                 == (0..100)
-                    .map(|i| Liberty {
+                    .map(|i| Field {
                         idx: i,
                         owner: None
                     })
-                    .collect::<Vec<Liberty>>()
+                    .collect::<Vec<Field>>()
         );
     }
 
     #[test]
-    fn test_init_liberties_13x13() {
-        let liberties = init_liberties(BoardSize::Thirteen);
+    fn test_init_fields_13x13() {
+        let fields = init_fields(BoardSize::Thirteen);
         assert!(
-            liberties
+            fields
                 == (0..196)
-                    .map(|i| Liberty {
+                    .map(|i| Field {
                         idx: i,
                         owner: None
                     })
-                    .collect::<Vec<Liberty>>()
+                    .collect::<Vec<Field>>()
         );
     }
 }
