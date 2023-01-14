@@ -1,8 +1,6 @@
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, MutexGuard};
-use std::thread::sleep;
-use std::time::Duration;
-use serde_json::{json};
+use serde_json::{json, Value};
 
 
 use ws::{listen, Message, Result, Sender, Handler};
@@ -19,8 +17,13 @@ pub struct Game {
 fn send_game_state(game: &MutexGuard<Game>, player: &Sender) {
     let board = game.board.clone();
     let player_turn = game.player1_turn;
-    player.send(Message::binary(board)).unwrap();
-    player.send(Message::text(format!("{}", player_turn))).unwrap();
+    let data = json!({ 
+        "first_player_turn": player_turn,
+        "board": board 
+    });
+    player.send(Message::text(data.to_string())).unwrap();
+    // player.send(Message::binary(board)).unwrap();
+    // player.send(Message::text(format!("{}", player_turn))).unwrap();
 }
 
 fn main() {
@@ -47,9 +50,15 @@ fn main() {
                 send_game_state(&game, &out);
             }
             else {
-                let player_msg: Vec<u8> = msg.into_data();
-
+                // let player_msg: Vec<u8> = msg.into_data();
+                println!("Received: {}", msg);
                 // game.board = player_move;
+                let json_str: String = msg.into_text().unwrap();
+                let json_value: Value = serde_json::from_str(&json_str).unwrap();
+                let board: Vec<u8> = json_value["board"].as_array().unwrap().into_iter().map(|x| {
+                    x.as_u64().unwrap() as u8
+                }).collect();
+                println!("Received board state: {:?}", board);
                 
                 game.player1_turn = !game.player1_turn;
     
@@ -57,7 +66,7 @@ fn main() {
                 send_game_state(&game, &game.player2.as_ref().unwrap());
     
                 if game.player1_turn {
-                    game.player1.as_ref().unwrap().send("Your turn").unwrap();
+                    game.player1.as_ref().unwrap().send(Message::text("Your turn")).unwrap();
                     println!("Player 1 moved!");
                 }
                 else {
