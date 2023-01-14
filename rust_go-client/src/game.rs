@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use yew::prelude::*;
 use yew_agent::{Bridge, Bridged};
 use serde_json::{self, Value};
+use gloo_console::log;
 
 use crate::web_service::WebsocketService;
 
@@ -21,6 +22,15 @@ pub enum Stone {
     White,
 }
 
+impl Stone {
+    fn decode(&self) -> u8 {
+       match self {
+        Stone::Black => 1,
+        Stone::White => 2,
+       }
+    }
+}
+
 /// represents a field, which is a vacant point on the board
 #[derive(Clone, Debug, PartialEq, Copy)]
 pub struct Field {
@@ -28,12 +38,37 @@ pub struct Field {
     pub owner: Option<Stone>,
 }
 
+
 /// represents the state of the game
 #[derive(Clone, Debug, PartialEq)]
 pub struct Game {
     pub size: BoardSize,
     pub fields: Vec<Field>,
     pub wss: WebsocketService,
+}
+
+impl Game {
+
+}
+
+fn decode_fields(fields: &Vec<Field>) -> Vec<u8> {
+    let mut new_fields: Vec<u8> = Vec::new();
+    for field in fields.iter() {
+        match &field.owner {
+            Some(stone) => {
+                new_fields.push(stone.decode());
+            }
+            _ => {
+                new_fields.push(0);
+            }
+        }
+    }
+    new_fields
+}
+
+fn format_fields_to_string(fields: &Vec<Field>) -> String {
+    let mut new_fields = decode_fields(&fields);
+    format!("{{\"board\": {:?}}}", new_fields)
 }
 
 /// represents an action that a player can take during the game
@@ -58,8 +93,6 @@ impl Reducible for Game {
                 Some(stone) => match &stone {
                     Stone::Black => {
                         fields[action.payload].owner = Some(Stone::White);
-                        let json: Value = serde_json::from_str(&format!("{{board: {:?}}}", fields)).unwrap();
-                        if let Ok(_) = self.wss.tx.clone().try_send(json.to_string()){};
                     }
                     Stone::White => {
                         fields[action.payload].owner = Some(Stone::Black);
@@ -67,6 +100,7 @@ impl Reducible for Game {
                 },
                 None => {
                     fields[action.payload].owner = Some(Stone::Black);
+                    if let Ok(_) = self.wss.tx.clone().try_send(format_fields_to_string(&fields)){};
                 }
             },
         };
