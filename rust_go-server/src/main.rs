@@ -1,11 +1,10 @@
-use std::collections::HashMap;
 use std::sync::{Arc, Mutex, MutexGuard};
 use serde_json::{json, Value};
 
+use ws::{listen, Message, Sender};
 
-use ws::{listen, Message, Result, Sender, Handler};
 
-
+/// Represents the state of the game from the server's perspective.
 pub struct Game {
     board: Vec<u8>,
     player1: Option<Sender>,
@@ -13,7 +12,7 @@ pub struct Game {
     player1_turn: bool,
 }
 
-
+/// Sends the current board state and turn information to the player represented by the sender.
 fn send_game_state(game: &MutexGuard<Game>, player: &Sender, your_turn: bool) {
     let board = game.board.clone();
     let data = json!({ 
