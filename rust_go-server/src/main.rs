@@ -10,6 +10,7 @@ pub struct Game {
     player1: Option<Sender>,
     player2: Option<Sender>,
     player1_turn: bool,
+    started: bool
 }
 
 /// Sends the current board state and turn information to the player represented by the sender.
@@ -29,6 +30,7 @@ fn main() {
         player1: None,
         player2: None,
         player1_turn: true,
+        started: false
     }));
 
     listen("127.0.0.1:8888", |out| {
@@ -42,12 +44,17 @@ fn main() {
                 send_game_state(&game, &out, game.player1_turn);
                 println!("First player joined the game, id: {}", out.connection_id());
             } 
-            else if game.player2.is_none() {
+            else if game.player2.is_none() && out.connection_id() != game.player1.as_ref().unwrap().connection_id() {
                 game.player2 = Some(out.clone());
                 send_game_state(&game, &out, !game.player1_turn);
                 println!("Second player joined the game, id: {}", out.connection_id());
+                game.started = true;
             }
             else {
+                if !game.started {
+                    game.player1.as_ref().unwrap().send("Waiting for the other player to join...").unwrap();
+                    return Ok(())
+                }
                 println!("Received data from player {}: {}", out.connection_id(), msg);
     
                 let json_str: String = msg.into_text().unwrap();
