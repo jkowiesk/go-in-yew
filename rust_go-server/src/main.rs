@@ -50,15 +50,19 @@ fn main() {
                 send_game_state(&game, &out);
             }
             else {
-                // let player_msg: Vec<u8> = msg.into_data();
-                println!("Received: {}", msg);
-                // game.board = player_move;
+                println!("Received data from client: {}", msg);
+    
                 let json_str: String = msg.into_text().unwrap();
                 let json_value: Value = serde_json::from_str(&json_str).unwrap();
                 let board: Vec<u8> = json_value["board"].as_array().unwrap().into_iter().map(|x| {
                     x.as_u64().unwrap() as u8
                 }).collect();
+                
+                println!("Previous board state: {:?}", game.board);
                 println!("Received board state: {:?}", board);
+
+                game.board = board;
+                println!("Updated game board state: {:?}", game.board);
                 
                 game.player1_turn = !game.player1_turn;
     
