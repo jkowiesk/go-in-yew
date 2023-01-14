@@ -4,6 +4,8 @@ use gloo_console::log;
 
 use wasm_bindgen_futures::spawn_local;
 
+
+#[derive(Clone, Debug)]
 pub struct WebsocketService {
     pub tx: Sender<String>,
 }
@@ -17,7 +19,10 @@ impl WebsocketService {
         let (in_tx, mut in_rx) = futures::channel::mpsc::channel::<String>(1000);
 
         spawn_local(async move {
-            write.send(Message::Text(String::from("test2"))).await.unwrap();
+            while let Some(s) = in_rx.next().await {
+                log!("got event from channel! ", &s);
+                write.send(Message::Text(s)).await.unwrap();
+            }
         });
 
         spawn_local(async move {
@@ -32,5 +37,11 @@ impl WebsocketService {
         });
 
         Self { tx: in_tx }
+    }
+}
+
+impl PartialEq for WebsocketService {
+    fn eq(&self, other: &Self) -> bool {
+        true
     }
 }

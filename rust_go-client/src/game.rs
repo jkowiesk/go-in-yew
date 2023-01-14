@@ -2,6 +2,7 @@ use std::rc::Rc;
 use serde::{Deserialize, Serialize};
 use yew::prelude::*;
 use yew_agent::{Bridge, Bridged};
+use serde_json::{self, Value};
 
 use crate::web_service::WebsocketService;
 
@@ -32,6 +33,7 @@ pub struct Field {
 pub struct Game {
     pub size: BoardSize,
     pub fields: Vec<Field>,
+    pub wss: WebsocketService,
 }
 
 /// represents an action that a player can take during the game
@@ -56,6 +58,8 @@ impl Reducible for Game {
                 Some(stone) => match &stone {
                     Stone::Black => {
                         fields[action.payload].owner = Some(Stone::White);
+                        let json: Value = serde_json::from_str(&format!("{{board: {:?}}}", fields)).unwrap();
+                        if let Ok(_) = self.wss.tx.clone().try_send(json.to_string()){};
                     }
                     Stone::White => {
                         fields[action.payload].owner = Some(Stone::Black);
@@ -67,11 +71,7 @@ impl Reducible for Game {
             },
         };
 
-        Self {
-            size: self.size.clone(),
-            fields,
-        }
-        .into()
+        self
     }
 }
 
