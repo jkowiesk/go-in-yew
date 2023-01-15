@@ -6,7 +6,7 @@ use ws::{listen, Message, Sender};
 
 /// Represents the state of the game from the server's perspective.
 pub struct Game {
-    board: Vec<u8>,
+    board: Option<Vec<u8>>,
     player1: Option<Sender>,
     player2: Option<Sender>,
     player1_turn: bool,
@@ -26,7 +26,7 @@ fn send_game_state(game: &MutexGuard<Game>, player: &Sender, your_turn: bool) {
 fn main() {
 
     let game = Arc::new(Mutex::new(Game {
-        board: vec![0; 9],
+        board: None,
         player1: None,
         player2: None,
         player1_turn: true,
@@ -42,9 +42,14 @@ fn main() {
 
             if game.player1.is_none() {
                 game.player1 = Some(out.clone());
-                send_game_state(&game, &out, game.player1_turn);
                 println!("First player joined the game, id: {}", out.connection_id());
-            }
+                let json_str: String = msg.into_text().unwrap();
+                let json_value: Value = serde_json::from_str(&json_str).unwrap();
+                let board_size: usize = json_value["board_size"].as_u64().unwrap() as usize;
+                game.board = Some(vec![0; board_size]);
+                println!("Initialized board with size: {}", board_size);
+                send_game_state(&game, &out, game.player1_turn);
+            } 
             else if game.player2.is_none() && out.connection_id() != game.player1.as_ref().unwrap().connection_id() {
                 game.player2 = Some(out.clone());
                 send_game_state(&game, &out, !game.player1_turn);
@@ -64,7 +69,7 @@ fn main() {
                     x.as_u64().unwrap() as u8
                 }).collect();
 
-                game.board = board;
+                game.board = Some(board);
                 println!("Updated game board state: {:?}", game.board);
 
                 if game.player1_turn {
