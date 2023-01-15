@@ -1,12 +1,12 @@
-use std::rc::Rc;
+use futures::channel::mpsc::{Receiver, Sender};
+use gloo_console::log;
 use serde::{Deserialize, Serialize};
+use serde_json::{self, Value};
+use std::rc::Rc;
 use yew::prelude::*;
 use yew_agent::{Bridge, Bridged};
-use serde_json::{self, Value};
-use gloo_console::log;
 
 use crate::web_service::WebsocketService;
-
 
 /// represents the size of the board, which can be chosen at the beginng of the game
 #[derive(Clone, Debug, PartialEq)]
@@ -24,10 +24,10 @@ pub enum Stone {
 
 impl Stone {
     fn decode(&self) -> u8 {
-       match self {
-        Stone::Black => 1,
-        Stone::White => 2,
-       }
+        match self {
+            Stone::Black => 1,
+            Stone::White => 2,
+        }
     }
 }
 
@@ -38,17 +38,12 @@ pub struct Field {
     pub owner: Option<Stone>,
 }
 
-
 /// represents the state of the game
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct Game {
     pub size: BoardSize,
     pub fields: Vec<Field>,
     pub wss: WebsocketService,
-}
-
-impl Game {
-
 }
 
 fn decode_fields(fields: &Vec<Field>) -> Vec<u8> {
@@ -72,40 +67,71 @@ fn format_fields_to_string(fields: &Vec<Field>) -> String {
 }
 
 /// represents an action that a player can take during the game
-pub enum EventAction {
+pub enum EventType {
     Place,
+    Board,
+}
+
+pub enum Payload {
+    Text(String),
+    Number(usize),
 }
 
 /// represents an even happening in the game, which has an action type and action details
-pub struct Event {
-    pub event_type: EventAction,
-    pub payload: usize,
+pub struct Action {
+    pub event_type: EventType,
+    pub payload: Payload,
 }
 
 impl Reducible for Game {
-    type Action = Event;
+    type Action = Action;
 
-    fn reduce(self: Rc<Self>, action: Self::Action) -> Rc<Self> {
+    fn reduce(self: Rc<Self>, event: Self::Action) -> Rc<Self> {
         let mut fields = self.fields.clone();
 
-        match action.event_type {
-            EventAction::Place => match &fields[action.payload].owner {
-                Some(stone) => match &stone {
-                    Stone::Black => {
-                        fields[action.payload].owner = Some(Stone::White);
+        match event.event_type {
+            EventType::Place => {
+                if let Payload::Number(payload) = event.payload {
+                    match &fields[payload].owner {
+                        Some(stone) => match &stone {
+                            Stone::Black => {
+                                fields[payload].owner = Some(Stone::White);
+                                self
+                            }
+                            Stone::White => {
+                                fields[payload].owner = Some(Stone::Black);
+                                self
+                            }
+                        },
+                        None => {
+                            if let Payload::Number(payload) = event.payload {
+                                fields[payload].owner = Some(Stone::White);
+                                if let Ok(_) = self
+                                    .wss
+                                    .tx
+                                    .clone()
+                                    .try_send(format_fields_to_string(&fields))
+                                {
+                                };
+                                self
+                            } else {
+                                self
+                            }
+                        }
                     }
-                    Stone::White => {
-                        fields[action.payload].owner = Some(Stone::Black);
-                    }
-                },
-                None => {
-                    fields[action.payload].owner = Some(Stone::Black);
-                    if let Ok(_) = self.wss.tx.clone().try_send(format_fields_to_string(&fields)){};
+                } else {
+                    self
                 }
-            },
-        };
-
-        self
+            }
+            EventType::Board => {
+                if let Payload::Text(payload) = event.payload {
+                    log!("IN GAME: ", payload);
+                    self
+                } else {
+                    self
+                }
+            }
+        }
     }
 }
 

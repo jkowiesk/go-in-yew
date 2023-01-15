@@ -1,12 +1,13 @@
-use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
+
+use gloo_console::log;
+use serde::{Deserialize, Serialize};
 use yew_agent::{Agent, AgentLink, Context, HandlerId};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum Request {
     EventBusMsg(String),
 }
-
 pub struct EventBus {
     link: AgentLink<EventBus>,
     subscribers: HashSet<HandlerId>,
