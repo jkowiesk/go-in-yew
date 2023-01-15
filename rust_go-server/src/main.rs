@@ -40,13 +40,22 @@ fn main() {
             let mut game = game.lock().unwrap();
             
             if game.player1.is_none() {
-                game.player1 = Some(out.clone());
-                println!("First player joined the game, id: {}", out.connection_id());
+
                 let json_str: String = msg.into_text().unwrap();
                 let json_value: Value = serde_json::from_str(&json_str).unwrap();
-                let board_size: usize = json_value["board_size"].as_u64().unwrap() as usize;
-                game.board = Some(vec![0; board_size]);
+                let board_size_value: &Value = json_value.get("board_size").unwrap_or_else(|| return &Value::Null);
+                if board_size_value.is_null() {
+                    println!("The key board_size is not present in the json, board not initialized.");
+                    out.send("You are the first player - you must initialize the board size.").unwrap();
+                    return Ok(())
+                }
+                let board_size: usize = board_size_value.as_u64().unwrap() as usize;
                 println!("Initialized board with size: {}", board_size);
+
+                game.board = Some(vec![0; board_size]);
+                game.player1 = Some(out.clone());
+                println!("First player joined the game, id: {}", out.connection_id());
+
                 send_game_state(&game, &out, game.player1_turn);
             } 
             else if game.player2.is_none() && out.connection_id() != game.player1.as_ref().unwrap().connection_id() {
@@ -64,7 +73,13 @@ fn main() {
     
                 let json_str: String = msg.into_text().unwrap();
                 let json_value: Value = serde_json::from_str(&json_str).unwrap();
-                let board: Vec<u8> = json_value["board"].as_array().unwrap().into_iter().map(|x| {
+                let board_value: &Value = json_value.get("board").unwrap_or_else(|| return &Value::Null);
+                if board_value.is_null() {
+                    println!("The key board not present in the json, board not updated.");
+                    out.send("Invalid board state format.").unwrap();
+                    return Ok(())
+                } 
+                let board: Vec<u8> = board_value.as_array().unwrap().into_iter().map(|x| {
                     x.as_u64().unwrap() as u8
                 }).collect();
 
