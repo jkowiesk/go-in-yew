@@ -14,7 +14,6 @@ pub fn board_fc() -> Html {
     let game = use_context::<UseReducerHandle<Game>>().expect("no ctx found");
     let board = 0..81;
 
-
     html! {
         <>
         <main>
