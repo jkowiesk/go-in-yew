@@ -30,9 +30,9 @@ impl Agent for EventBus {
 
     fn handle_input(&mut self, msg: Self::Input, _id: HandlerId) {
         match msg {
-            Request::EventBusMsg(s) => {
+            Request::EventBusMsg(msg) => {
                 for sub in self.subscribers.iter() {
-                    self.link.respond(*sub, s.clone())
+                    self.link.respond(*sub, msg.clone())
                 }
             }
         }

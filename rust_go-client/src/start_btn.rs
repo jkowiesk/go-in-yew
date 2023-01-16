@@ -13,9 +13,6 @@ pub fn StartBtn(props: &Props) -> Html {
     let Props { game } = props;
     let game = game.clone();
     let field = field.clone();
-    let is_btn_clicked = use_state(|| {
-
-    })
 
     let on_click = {
         let game = game.clone();
