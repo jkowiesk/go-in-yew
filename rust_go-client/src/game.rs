@@ -4,9 +4,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::{self, Value};
 use std::rc::Rc;
 use yew::prelude::*;
-use yew_agent::{Bridge, Bridged};
 
-use crate::web_service::WebsocketService;
+use crate::{web_service::WebsocketService, player::Player};
 
 /// represents the size of the board, which can be chosen at the beginng of the game
 #[derive(Clone, Debug, PartialEq)]
@@ -23,7 +22,15 @@ pub enum Stone {
 }
 
 impl Stone {
-    fn decode(&self) -> u8 {
+    pub fn from_str(stone: String) -> Self {
+        if stone == "white" {
+            Stone::White
+        } else {
+            Stone::Black
+        }
+    }
+
+    fn decode(&self) -> u64 {
         match self {
             Stone::Black => 1,
             Stone::White => 2,
@@ -38,16 +45,41 @@ pub struct Field {
     pub owner: Option<Stone>,
 }
 
+impl Field {
+    pub fn from_num(idx: usize, num: u64) -> Self {
+        let mut owner: Option<Stone> = None;
+        if num == 1 {
+            owner = Some(Stone::Black);
+        } else if num == 2 {
+            owner = Some(Stone::White);
+        }
+
+        Self {
+            idx,
+            owner
+        }
+    }
+}
+
 /// represents the state of the game
 #[derive(Debug, PartialEq)]
 pub struct Game {
     pub size: BoardSize,
     pub fields: Vec<Field>,
     pub wss: WebsocketService,
+    pub player: Player,
 }
 
-fn decode_fields(fields: &Vec<Field>) -> Vec<u8> {
-    let mut new_fields: Vec<u8> = Vec::new();
+fn code_fields(board: &Vec<u64>) -> Vec<Field> {
+    let mut new_fields: Vec<Field> = Vec::new();
+    for (idx, num) in board.iter().enumerate() {
+        new_fields.push(Field::from_num(idx, num.clone()));
+    }
+    new_fields
+}
+
+fn decode_fields(fields: &Vec<Field>) -> Vec<u64> {
+    let mut new_fields: Vec<u64> = Vec::new();
     for field in fields.iter() {
         match &field.owner {
             Some(stone) => {
@@ -70,21 +102,24 @@ fn format_fields_to_string(fields: &Vec<Field>) -> String {
 pub enum EventType {
     Place,
     Board,
+    Player,
 }
 
 pub enum Payload {
     Text(String),
     Number(usize),
+    Player((u64, String)),
+    Vector(Vec<u64>),
 }
 
 /// represents an even happening in the game, which has an action type and action details
-pub struct Action {
+pub struct GameAction {
     pub event_type: EventType,
     pub payload: Payload,
 }
 
 impl Reducible for Game {
-    type Action = Action;
+    type Action = GameAction;
 
     fn reduce(self: Rc<Self>, event: Self::Action) -> Rc<Self> {
         let mut fields = self.fields.clone();
@@ -93,26 +128,27 @@ impl Reducible for Game {
             EventType::Place => {
                 if let Payload::Number(payload) = event.payload {
                     match &fields[payload].owner {
-                        Some(stone) => match &stone {
-                            Stone::Black => {
-                                fields[payload].owner = Some(Stone::White);
-                                self
-                            }
-                            Stone::White => {
-                                fields[payload].owner = Some(Stone::Black);
-                                self
-                            }
-                        },
+                        Some(_) => self,
                         None => {
                             if let Payload::Number(payload) = event.payload {
-                                fields[payload].owner = Some(Stone::White);
+                                let stone: Option<Stone>;
+                                if let Some(name) = self.player.name {
+                                    if name == 1 {
+                                        stone = Some(Stone::White);
+                                    } else {
+                                        stone = Some(Stone::Black);
+                                    }
+                                } else {
+                                    return self;
+                                }
+
+                                fields[payload].owner = stone;
                                 if let Ok(_) = self
                                     .wss
                                     .tx
                                     .clone()
-                                    .try_send(format_fields_to_string(&fields))
-                                {
-                                };
+                                    .try_send(format_fields_to_string(&fields)){};
+
                                 self
                             } else {
                                 self
@@ -124,9 +160,29 @@ impl Reducible for Game {
                 }
             }
             EventType::Board => {
-                if let Payload::Text(payload) = event.payload {
-                    log!("IN GAME: ", payload);
+                if let Payload::Vector(server_fields) = event.payload {
+                    log!("IN GAME: ", server_fields[0]);
+                    Self {
+                        size: self.size.clone(),
+                        fields: code_fields(&server_fields),
+                        wss: self.wss.clone(),
+                        player: self.player.clone()
+                    }.into()
+                } else {
                     self
+                }
+            }
+            EventType::Player => {
+                if let Payload::Player((name, side)) = event.payload {
+                    let mut player = self.player.clone();
+                    log!("PLAYER REDUCE: ", &side);
+                    if let Ok(_) = player.set_player(name, Stone::from_str(side)){};
+                    Self {
+                        size: self.size.clone(),
+                        fields: self.fields.clone(),
+                        wss: self.wss.clone(),
+                        player
+                    }.into()
                 } else {
                     self
                 }

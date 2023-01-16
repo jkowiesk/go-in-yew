@@ -6,14 +6,16 @@ pub mod player;
 pub mod event_bus;
 
 use event_bus::EventBus;
+use serde_json::{Value, from_value};
 use yew::prelude::*;
 use yew::{function_component, html, Html};
 
 use board::BoardFC;
-use game::{init_fields, BoardSize, Game, Action, EventType, Payload};
+use game::{init_fields, BoardSize, Game, GameAction, EventType, Payload};
 use web_service::WebsocketService;
 use gloo_console::log;
 use yew_agent::{use_bridge, UseBridgeHandle};
+use player::Player;
 
 
 #[function_component(App)]
@@ -21,16 +23,36 @@ fn app() -> Html {
     let game = use_reducer(|| Game {
         size: BoardSize::Nine.to_owned(),
         fields: init_fields(BoardSize::Nine).to_owned(),
-        wss: WebsocketService::new(),
+        wss: WebsocketService::new().to_owned(),
+        player: Player::new().to_owned(),
     });
 
     {
         let game = game.clone();
-        let _: UseBridgeHandle<EventBus> = use_bridge(move |response| {
-            game.dispatch(Action {
-                event_type: EventType::Board,
-                payload: Payload::Text(response),
-            });
+        let _: UseBridgeHandle<EventBus> = use_bridge(move |response: String| {
+            let response = response.clone();
+            let res: Value = serde_json::from_str(&response).unwrap();
+
+            if res["type"] == "board" {
+                let board = res["board"].as_array().unwrap();
+                let board: Vec<u64> = board.into_iter().map(|value| {
+                    let num: u64 = from_value(value.clone()).unwrap();
+                    num
+                }).collect();
+
+                game.dispatch(GameAction {
+                    event_type: EventType::Board,
+                    payload: Payload::Vector(board),
+                });
+            } else if res["type"] == "player" {
+                let name = String::from(res["name"].as_str().unwrap()).parse::<u64>().unwrap();
+
+                game.dispatch(GameAction {
+                    event_type: EventType::Player,
+                    payload: Payload::Player((name, String::from(res["side"].as_str().unwrap()))),
+                });
+            }
+
         });
     }
 

@@ -1,12 +1,9 @@
-use futures::StreamExt;
 use reqwasm::websocket::{futures::WebSocket, Message};
-use web_sys::console::log;
 use yew::prelude::*;
-use yew_agent::{use_bridge, Bridged, UseBridgeHandle};
 
 use crate::event_bus::EventBus;
 use crate::field::FieldFC;
-use crate::game::{Action, EventType, Game, Payload};
+use crate::game::{Game};
 use gloo_console::log;
 
 #[function_component(BoardFC)]

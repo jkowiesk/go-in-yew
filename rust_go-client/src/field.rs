@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use crate::game::{Action, EventType, Field, Game, Payload, Stone};
+use crate::game::{GameAction, EventType, Field, Game, Payload, Stone};
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
@@ -9,7 +9,7 @@ pub struct Props {
 }
 
 #[function_component(FieldFC)]
-pub fn FieldC(props: &Props) -> Html {
+pub fn field_fc(props: &Props) -> Html {
     let Props { field, game } = props;
     let game = game.clone();
     let field = field.clone();
@@ -17,7 +17,7 @@ pub fn FieldC(props: &Props) -> Html {
     let place_stone = {
         let game = game.clone();
         Callback::from(move |_| {
-            game.dispatch(Action {
+            game.dispatch(GameAction {
                 event_type: EventType::Place,
                 payload: Payload::Number(field.idx),
             })

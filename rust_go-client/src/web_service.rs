@@ -7,7 +7,7 @@ use wasm_bindgen_futures::spawn_local;
 use crate::event_bus::{EventBus, Request};
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct WebsocketService {
     pub tx: Sender<String>,
 }
@@ -22,6 +22,7 @@ impl WebsocketService {
         let (in_tx, mut in_rx) = futures::channel::mpsc::channel::<String>(1000);
 
         spawn_local(async move {
+            write.send(Message::Text(String::from("{\"board_size\": 81}"))).await.unwrap();
             while let Some(s) = in_rx.next().await {
                 log!("got event from channel! ", &s);
                 write.send(Message::Text(s)).await.unwrap();
@@ -31,7 +32,7 @@ impl WebsocketService {
         spawn_local(async move {
             while let Some(msg) = read.next().await {
                     if let Ok(Message::Text(text)) = msg {
-                        log!(&text);
+                        log!("From SERVER: ", &text);
                         event_bus.send(Request::EventBusMsg(text));
                 }
             }
