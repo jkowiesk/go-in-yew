@@ -126,3 +126,18 @@ main {
   background-color: white;
   opacity: 50%;
 }
+
+.start_btn {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.start_btn--enabled {
+  display: block;
+}
+
+.start_btn--disabled {
+  display: none;
+}

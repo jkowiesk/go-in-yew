@@ -16,15 +16,15 @@ pub struct Game {
 /// Sends the current board state and turn information to the player represented by the sender.
 fn send_game_state(game: &MutexGuard<Game>, player: &Sender, your_turn: bool) {
     let board = game.board.clone();
-    let data = json!({ 
+    let data = json!({
         "your_turn": your_turn,
-        "board": board 
+        "board": board
     });
     player.send(Message::text(data.to_string())).unwrap();
 }
 
 fn main() {
-    
+
     let game = Arc::new(Mutex::new(Game {
         board: None,
         player1: None,
@@ -34,11 +34,12 @@ fn main() {
     }));
 
     listen("127.0.0.1:8888", |out| {
+        println!("TEST");
         let game = game.clone();
-    
+
         move |msg: Message| {
             let mut game = game.lock().unwrap();
-            
+
             if game.player1.is_none() {
                 game.player1 = Some(out.clone());
                 println!("First player joined the game, id: {}", out.connection_id());
@@ -61,7 +62,7 @@ fn main() {
                     return Ok(())
                 }
                 println!("Received data from player {}: {}", out.connection_id(), msg);
-    
+
                 let json_str: String = msg.into_text().unwrap();
                 let json_value: Value = serde_json::from_str(&json_str).unwrap();
                 let board: Vec<u8> = json_value["board"].as_array().unwrap().into_iter().map(|x| {
@@ -70,7 +71,7 @@ fn main() {
 
                 game.board = Some(board);
                 println!("Updated game board state: {:?}", game.board);
-                
+
                 if game.player1_turn {
                     println!("Player 1 moved!");
                     game.player2.as_ref().unwrap().send(Message::text("Your turn")).unwrap();
@@ -81,10 +82,10 @@ fn main() {
                 }
 
                 game.player1_turn = !game.player1_turn;
-    
+
                 send_game_state(&game, &game.player1.as_ref().unwrap(), game.player1_turn);
                 send_game_state(&game, &game.player2.as_ref().unwrap(), !game.player1_turn);
-    
+
             }
             drop(game);
             Ok(())

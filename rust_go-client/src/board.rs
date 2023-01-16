@@ -1,10 +1,16 @@
+use futures::StreamExt;
+use reqwasm::websocket::{futures::WebSocket, Message};
+use web_sys::console::log;
 use yew::prelude::*;
+use yew_agent::{use_bridge, Bridged, UseBridgeHandle};
 
-use crate::game::Game;
+use crate::event_bus::EventBus;
 use crate::field::FieldFC;
+use crate::game::{Action, EventType, Game, Payload};
+use gloo_console::log;
 
-#[function_component]
-pub fn BoardFC() -> Html {
+#[function_component(BoardFC)]
+pub fn board_fc() -> Html {
     let game = use_context::<UseReducerHandle<Game>>().expect("no ctx found");
     let board = 0..81;
 
