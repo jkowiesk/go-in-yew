@@ -17,11 +17,23 @@ pub struct Game {
 fn send_game_state(game: &MutexGuard<Game>, player: &Sender, your_turn: bool) {
     let board = game.board.clone();
     let data = json!({
+        "type": "board",
         "your_turn": your_turn,
         "board": board
     });
     player.send(Message::text(data.to_string())).unwrap();
 }
+
+fn send_player_type(player: &Sender, playerName: String, playerSide: String) {
+    let data = json!({
+        "type": "player",
+        "name": playerName,
+        "side": playerSide,
+    });
+    player.send(Message::text(data.to_string())).unwrap();
+}
+
+
 
 fn main() {
 
@@ -44,21 +56,22 @@ fn main() {
                 game.player1 = Some(out.clone());
                 println!("First player joined the game, id: {}", out.connection_id());
                 let json_str: String = msg.into_text().unwrap();
+                println!("{json_str}");
                 let json_value: Value = serde_json::from_str(&json_str).unwrap();
                 let board_size: usize = json_value["board_size"].as_u64().unwrap() as usize;
                 game.board = Some(vec![0; board_size]);
                 println!("Initialized board with size: {}", board_size);
-                send_game_state(&game, &out, game.player1_turn);
-            } 
+                send_player_type(&out, String::from("1"), String::from("white"));
+            }
             else if game.player2.is_none() && out.connection_id() != game.player1.as_ref().unwrap().connection_id() {
                 game.player2 = Some(out.clone());
+                send_player_type(&out, String::from("2"), String::from("black"));
                 send_game_state(&game, &out, !game.player1_turn);
                 println!("Second player joined the game, id: {}", out.connection_id());
                 game.started = true;
             }
             else {
                 if !game.started {
-                    game.player1.as_ref().unwrap().send("Waiting for the other player to join...").unwrap();
                     return Ok(())
                 }
                 println!("Received data from player {}: {}", out.connection_id(), msg);
@@ -74,11 +87,11 @@ fn main() {
 
                 if game.player1_turn {
                     println!("Player 1 moved!");
-                    game.player2.as_ref().unwrap().send(Message::text("Your turn")).unwrap();
+                    // game.player2.as_ref().unwrap().send(Message::text("Your turn")).unwrap();
                 }
                 else {
                     println!("Player 2 moved!");
-                    game.player1.as_ref().unwrap().send(Message::text("Your turn")).unwrap();
+                    // game.player1.as_ref().unwrap().send(Message::text("Your turn")).unwrap();
                 }
 
                 game.player1_turn = !game.player1_turn;
