@@ -108,7 +108,7 @@ main {
   border-radius: 100%;
   width: 60px;
   height: 60px;
-  z-index: 10;
+  z-index: 2;
 }
 
 .field--white {
@@ -127,17 +127,16 @@ main {
   opacity: 50%;
 }
 
-.start_btn {
+.btn_container {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.start_btn--enabled {
-  display: block;
-}
-
-.start_btn--disabled {
-  display: none;
+  display: grid;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+  margin: auto;
+  place-content: center;
+  z-index: 9999;
 }

@@ -12,8 +12,6 @@ pub fn board_fc() -> Html {
     let board = 0..81;
 
     html! {
-        <>
-        <main>
             <div class="board__max_width">
                 <ul class="board__back--9x9">
                     {board.map(|_| html!{
@@ -26,7 +24,5 @@ pub fn board_fc() -> Html {
                         }).collect::<Html>()}
                 </section>
             </div>
-        </main>
-        </>
     }
 }

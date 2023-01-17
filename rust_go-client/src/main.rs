@@ -4,16 +4,17 @@ pub mod web_service;
 pub mod field;
 pub mod player;
 pub mod event_bus;
+pub mod start;
 
 use event_bus::EventBus;
 use serde_json::{Value, from_value};
+use start::Start;
 use yew::prelude::*;
-use yew::{function_component, html, Html};
+use yew::{function_component, html};
 
 use board::BoardFC;
 use game::{init_fields, BoardSize, Game, GameAction, EventType, Payload};
 use web_service::WebsocketService;
-use gloo_console::log;
 use yew_agent::{use_bridge, UseBridgeHandle};
 use player::Player;
 
@@ -59,7 +60,10 @@ fn app() -> Html {
 
     html! {
         <ContextProvider<UseReducerHandle<Game>> context={game}>
-            <BoardFC />
+            <main>
+                <BoardFC />
+            </main>
+            <Start />
         </ContextProvider<UseReducerHandle<Game>>>
     }
 }
