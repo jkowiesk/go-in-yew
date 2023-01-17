@@ -69,7 +69,7 @@ main {
   height: 100%;
 }
 
-.board__max_width {
+.board {
   position: relative;
   width: 960px;
   height: 960px;
@@ -90,21 +90,21 @@ main {
   margin: auto;
 }
 
-.board__back__square--9x9 {
+.board__back--9x9__square {
   width: 100px;
   height: 100px;
   border: 2px solid black;
   position: relative;
 }
 
-.board__fields {
+.board__fields--9x9 {
   display: grid;
   grid-template-rows: repeat(10, 1fr);
   grid-template-columns: repeat(10, 1fr);
   gap: 40px;
 }
 
-.field {
+.field--9x9 {
   border-radius: 100%;
   width: 60px;
   height: 60px;

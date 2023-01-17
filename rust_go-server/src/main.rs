@@ -17,7 +17,7 @@ pub struct Game {
 fn send_game_state(game: &MutexGuard<Game>, player: &Sender, your_turn: bool) {
     let board = game.board.clone();
     let data = json!({
-        "type": "board",
+        "type_message": "board",
         "your_turn": your_turn,
         "board": board
     });
@@ -26,7 +26,7 @@ fn send_game_state(game: &MutexGuard<Game>, player: &Sender, your_turn: bool) {
 
 fn send_player_type(player: &Sender, playerName: String, playerSide: String) {
     let data = json!({
-        "type": "player",
+        "type_message": "player",
         "name": playerName,
         "side": playerSide,
     });
@@ -34,9 +34,7 @@ fn send_player_type(player: &Sender, playerName: String, playerSide: String) {
 }
 
 
-
 fn main() {
-
     let game = Arc::new(Mutex::new(Game {
         board: None,
         player1: None,

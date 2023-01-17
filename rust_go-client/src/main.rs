@@ -5,6 +5,8 @@ pub mod field;
 pub mod player;
 pub mod event_bus;
 pub mod start;
+pub mod board9x9;
+pub mod board19x19;
 
 use event_bus::EventBus;
 use serde_json::{Value, from_value};
@@ -34,7 +36,7 @@ fn app() -> Html {
             let response = response.clone();
             let res: Value = serde_json::from_str(&response).unwrap();
 
-            if res["type"] == "board" {
+            if res["type_message"] == "board" {
                 let board = res["board"].as_array().unwrap();
                 let board: Vec<u64> = board.into_iter().map(|value| {
                     let num: u64 = from_value(value.clone()).unwrap();
@@ -45,7 +47,7 @@ fn app() -> Html {
                     event_type: EventType::Board,
                     payload: Payload::Vector(board),
                 });
-            } else if res["type"] == "player" {
+            } else if res["type_message"] == "player" {
                 let name = String::from(res["name"].as_str().unwrap()).parse::<u64>().unwrap();
 
                 game.dispatch(GameAction {

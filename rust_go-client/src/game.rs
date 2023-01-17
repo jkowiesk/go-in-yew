@@ -103,11 +103,14 @@ pub enum EventType {
     Place,
     Board,
     Player,
+    BoardSize,
+
 }
 
 pub enum Payload {
     Text(String),
-    Number(usize),
+    Usize(usize),
+    Size(BoardSize),
     Player((u64, String)),
     Vector(Vec<u64>),
 }
@@ -126,9 +129,8 @@ impl Reducible for Game {
 
         match event.event_type {
             EventType::Place => {
-                if let Payload::Number(payload) = event.payload {
+                if let Payload::Usize(payload) = event.payload {
                     if fields[payload].owner.is_none() {
-                        if let Payload::Number(payload) = event.payload {
                             let stone = match &self.player.name {
                                 Some(1) => Some(Stone::White),
                                 Some(_) => Some(Stone::Black),
@@ -139,7 +141,6 @@ impl Reducible for Game {
                                 fields[payload].owner = Some(s);
                                 if let Ok(_) = self.wss.tx.clone().try_send(format_fields_to_string(&fields)) {};
                             }
-                        }
                     }
                 }
             },
@@ -164,6 +165,16 @@ impl Reducible for Game {
                         fields: self.fields.clone(),
                         wss: self.wss.clone(),
                         player
+                    }.into()
+                }
+            }
+            EventType::BoardSize => {
+                if let Payload::Size(board_size) = event.payload {
+                    return Self {
+                        size: board_size,
+                        fields: self.fields.clone(),
+                        wss: self.wss.clone(),
+                        player: self.player.clone(),
                     }.into()
                 }
             }
