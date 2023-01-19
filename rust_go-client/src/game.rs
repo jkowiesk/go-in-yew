@@ -103,11 +103,14 @@ pub enum EventType {
     Place,
     Board,
     Player,
+    BoardSize,
+
 }
 
 pub enum Payload {
     Text(String),
-    Number(usize),
+    Usize(usize),
+    Size(BoardSize),
     Player((u64, String)),
     Vector(Vec<u64>),
 }
@@ -126,50 +129,30 @@ impl Reducible for Game {
 
         match event.event_type {
             EventType::Place => {
-                if let Payload::Number(payload) = event.payload {
-                    match &fields[payload].owner {
-                        Some(_) => self,
-                        None => {
-                            if let Payload::Number(payload) = event.payload {
-                                let stone: Option<Stone>;
-                                if let Some(name) = self.player.name {
-                                    if name == 1 {
-                                        stone = Some(Stone::White);
-                                    } else {
-                                        stone = Some(Stone::Black);
-                                    }
-                                } else {
-                                    return self;
-                                }
+                if let Payload::Usize(payload) = event.payload {
+                    if fields[payload].owner.is_none() {
+                            let stone = match &self.player.name {
+                                Some(1) => Some(Stone::White),
+                                Some(_) => Some(Stone::Black),
+                                None => None
+                            };
 
-                                fields[payload].owner = stone;
-                                if let Ok(_) = self
-                                    .wss
-                                    .tx
-                                    .clone()
-                                    .try_send(format_fields_to_string(&fields)){};
-
-                                self
-                            } else {
-                                self
+                            if let Some(s) = stone {
+                                fields[payload].owner = Some(s);
+                                if let Ok(_) = self.wss.tx.clone().try_send(format_fields_to_string(&fields)) {};
                             }
-                        }
                     }
-                } else {
-                    self
                 }
-            }
+            },
             EventType::Board => {
                 if let Payload::Vector(server_fields) = event.payload {
                     log!("IN GAME: ", server_fields[0]);
-                    Self {
+                    return Self {
                         size: self.size.clone(),
                         fields: code_fields(&server_fields),
                         wss: self.wss.clone(),
                         player: self.player.clone()
                     }.into()
-                } else {
-                    self
                 }
             }
             EventType::Player => {
@@ -177,17 +160,26 @@ impl Reducible for Game {
                     let mut player = self.player.clone();
                     log!("PLAYER REDUCE: ", &side);
                     if let Ok(_) = player.set_player(name, Stone::from_str(side)){};
-                    Self {
+                    return Self {
                         size: self.size.clone(),
                         fields: self.fields.clone(),
                         wss: self.wss.clone(),
                         player
                     }.into()
-                } else {
-                    self
                 }
             }
-        }
+            EventType::BoardSize => {
+                if let Payload::Size(board_size) = event.payload {
+                    return Self {
+                        size: board_size,
+                        fields: self.fields.clone(),
+                        wss: self.wss.clone(),
+                        player: self.player.clone(),
+                    }.into()
+                }
+            }
+        };
+        self
     }
 }
 

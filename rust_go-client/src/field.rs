@@ -11,7 +11,6 @@ pub struct Props {
 #[function_component(FieldFC)]
 pub fn field_fc(props: &Props) -> Html {
     let Props { field, game } = props;
-    let game = game.clone();
     let field = field.clone();
 
     let place_stone = {
@@ -19,17 +18,17 @@ pub fn field_fc(props: &Props) -> Html {
         Callback::from(move |_| {
             game.dispatch(GameAction {
                 event_type: EventType::Place,
-                payload: Payload::Number(field.idx),
+                payload: Payload::Usize(field.idx),
             })
         })
     };
 
     let class_name = match &field.owner {
         Some(stone) => match stone {
-            Stone::Black => "field field--black",
-            Stone::White => "field field--white",
+            Stone::Black => "field--9x9 field--black",
+            Stone::White => "field--9x9 field--white",
         },
-        None => "field field--empty",
+        None => "field--9x9 field--empty",
     };
 
     html! {
