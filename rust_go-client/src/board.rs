@@ -1,10 +1,13 @@
+use reqwasm::websocket::{futures::WebSocket, Message};
 use yew::prelude::*;
 
-use crate::game::Game;
+use crate::event_bus::EventBus;
 use crate::field::FieldFC;
+use crate::game::{Game};
+use gloo_console::log;
 
-#[function_component]
-pub fn BoardFC() -> Html {
+#[function_component(BoardFC)]
+pub fn board_fc() -> Html {
     let game = use_context::<UseReducerHandle<Game>>().expect("no ctx found");
     let board = 0..81;
 

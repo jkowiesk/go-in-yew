@@ -24,7 +24,7 @@ fn send_game_state(game: &MutexGuard<Game>, player: &Sender, your_turn: bool) {
     let data = json!({
         "message_type": "board_state",
         "your_turn": your_turn,
-        "board": board 
+        "board": board
     });
     player.send(Message::text(data.to_string())).unwrap();
 }
@@ -43,7 +43,7 @@ fn start_server(server_url: &str) {
 
     ws::listen(server_url, |out| {
         let game = game.clone();
-    
+
         move |msg: Message| {
 
             let json_str = msg.as_text().unwrap();
@@ -154,7 +154,7 @@ fn start_server(server_url: &str) {
                 println!("Updated game board state: {:?}", game.board.as_ref().unwrap());
 
                 game.player1_turn = !game.player1_turn;
-    
+
                 send_game_state(&game, &game.player1.as_ref().unwrap(), game.player1_turn);
                 send_game_state(&game, &game.player2.as_ref().unwrap(), !game.player1_turn);
             }

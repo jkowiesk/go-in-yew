@@ -3,36 +3,58 @@ pub mod game;
 pub mod web_service;
 pub mod field;
 pub mod player;
+pub mod event_bus;
 
+use event_bus::EventBus;
+use serde_json::{Value, from_value};
 use yew::prelude::*;
 use yew::{function_component, html, Html};
 
 use board::BoardFC;
-use game::{init_fields, BoardSize, Game};
+use game::{init_fields, BoardSize, Game, GameAction, EventType, Payload};
 use web_service::WebsocketService;
 use gloo_console::log;
-use serde_json;
+use yew_agent::{use_bridge, UseBridgeHandle};
+use player::Player;
 
 
-#[function_component]
-fn App() -> Html {
-    let wss = WebsocketService::new();
+#[function_component(App)]
+fn app() -> Html {
     let game = use_reducer(|| Game {
         size: BoardSize::Nine.to_owned(),
         fields: init_fields(BoardSize::Nine).to_owned(),
+        wss: WebsocketService::new().to_owned(),
+        player: Player::new().to_owned(),
     });
 
+    {
+        let game = game.clone();
+        let _: UseBridgeHandle<EventBus> = use_bridge(move |response: String| {
+            let response = response.clone();
+            let res: Value = serde_json::from_str(&response).unwrap();
 
-    /* use_effect(move || {
-        if let Ok(_) = wss
-            .tx
-            .clone()
-            .try_send(serde_json::to_string(&"gitara").unwrap())
-        {
-            log!("message sent successfully");
-        }
-    }); */
+            if res["type"] == "board" {
+                let board = res["board"].as_array().unwrap();
+                let board: Vec<u64> = board.into_iter().map(|value| {
+                    let num: u64 = from_value(value.clone()).unwrap();
+                    num
+                }).collect();
 
+                game.dispatch(GameAction {
+                    event_type: EventType::Board,
+                    payload: Payload::Vector(board),
+                });
+            } else if res["type"] == "player" {
+                let name = String::from(res["name"].as_str().unwrap()).parse::<u64>().unwrap();
+
+                game.dispatch(GameAction {
+                    event_type: EventType::Player,
+                    payload: Payload::Player((name, String::from(res["side"].as_str().unwrap()))),
+                });
+            }
+
+        });
+    }
 
 
     html! {
@@ -43,7 +65,7 @@ fn App() -> Html {
 }
 
 fn main() {
-    yew::Renderer::<App>::new().render();
+    yew::start_app::<App>();
 }
 
 mod tests {

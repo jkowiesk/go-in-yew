@@ -2,35 +2,24 @@ use serde::{Deserialize, Serialize};
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yew_agent::{Bridge, Bridged};
-
-pub enum Msg {
-    HandleMsg(String),
-    SubmitMessage,
+use crate::game::Stone;
+#[derive(Clone, Debug, PartialEq)]
+pub struct Player {
+    pub name: Option<u64>,
+    pub side: Option<Stone>,
 }
 
-#[derive(Deserialize)]
-struct MessageData {
-    from: String,
-    message: String,
-}
+impl Player {
+    pub fn new() -> Self {
+        Self {
+            name: None,
+            side: None
+        }
+    }
 
-#[derive(Debug, Deserialize, Serialize)]
-#[serde(rename_all = "lowercase")]
-pub enum MsgTypes {
-    Users,
-    Register,
-    Message,
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct WebSocketMessage {
-    message_type: MsgTypes,
-    data_array: Option<Vec<String>>,
-    data: Option<String>,
-}
-
-#[derive(Clone)]
-struct Player {
-    name: String,
+    pub fn set_player(&mut self, name: u64, side: Stone) -> Result<(), ()> {
+        self.name = Some(name);
+        self.side = Some(side);
+        Ok(())
+    }
 }
