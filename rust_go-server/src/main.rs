@@ -1,4 +1,6 @@
 pub mod rules;
+#[cfg(test)]
+pub mod tests;
 
 use std::{sync::{Arc, Mutex, MutexGuard}, process};
 use serde_json::{json, Value};
@@ -165,4 +167,3 @@ fn start_server(server_url: &str) {
 fn main() {
     start_server("127.0.0.1:8888");
 }
-
