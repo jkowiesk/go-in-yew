@@ -4,7 +4,7 @@ use yew_agent::Dispatched;
 use gloo_console::log;
 
 use wasm_bindgen_futures::spawn_local;
-use crate::event_bus::{EventBus, Request};
+use crate::{event_bus::{EventBus, Request}, utils::format_msg};
 
 
 #[derive(Debug, Clone)]
@@ -22,7 +22,9 @@ impl WebsocketService {
         let (in_tx, mut in_rx) = futures::channel::mpsc::channel::<String>(1000);
 
         spawn_local(async move {
-            write.send(Message::Text(String::from("{\"board_size\": 81}"))).await.unwrap();
+            let join = format_msg("join_game", "");
+            log!(&join);
+            write.send(Message::Text(String::from(join))).await.unwrap();
             while let Some(s) = in_rx.next().await {
                 log!("got event from channel! ", &s);
                 write.send(Message::Text(s)).await.unwrap();

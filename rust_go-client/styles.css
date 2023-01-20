@@ -70,7 +70,6 @@ main {
 }
 
 .board {
-  position: relative;
   width: 960px;
   height: 960px;
 }

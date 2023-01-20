@@ -5,13 +5,13 @@ use serde_json::{self, Value};
 use std::rc::Rc;
 use yew::prelude::*;
 
-use crate::{web_service::WebsocketService, player::Player};
+use crate::{web_service::WebsocketService, player::Player, utils::format_msg};
 
 /// represents the size of the board, which can be chosen at the beginng of the game
 #[derive(Clone, Debug, PartialEq)]
 pub enum BoardSize {
     Nine,
-    Thirteen,
+    Nineteen,
 }
 
 /// reprezents a stone placed on the board, which can be either black or white
@@ -64,7 +64,7 @@ impl Field {
 /// represents the state of the game
 #[derive(Debug, PartialEq)]
 pub struct Game {
-    pub size: BoardSize,
+    pub size: Option<BoardSize>,
     pub fields: Vec<Field>,
     pub wss: WebsocketService,
     pub player: Player,
@@ -95,7 +95,7 @@ fn decode_fields(fields: &Vec<Field>) -> Vec<u64> {
 
 fn format_fields_to_string(fields: &Vec<Field>) -> String {
     let mut new_fields = decode_fields(&fields);
-    format!("{{\"board\": {:?}}}", new_fields)
+    format_msg("board_state", &format!("\"board\": {:?}", new_fields))
 }
 
 /// represents an action that a player can take during the game
@@ -111,8 +111,9 @@ pub enum Payload {
     Text(String),
     Usize(usize),
     Size(BoardSize),
-    Player((u64, String)),
+    Player((String)),
     Vector(Vec<u64>),
+    BoardState((Vec<u64>, bool)),
 }
 
 /// represents an even happening in the game, which has an action type and action details
@@ -131,13 +132,7 @@ impl Reducible for Game {
             EventType::Place => {
                 if let Payload::Usize(payload) = event.payload {
                     if fields[payload].owner.is_none() {
-                            let stone = match &self.player.name {
-                                Some(1) => Some(Stone::White),
-                                Some(_) => Some(Stone::Black),
-                                None => None
-                            };
-
-                            if let Some(s) = stone {
+                            if let Some(s) = self.player.side {
                                 fields[payload].owner = Some(s);
                                 if let Ok(_) = self.wss.tx.clone().try_send(format_fields_to_string(&fields)) {};
                             }
@@ -145,21 +140,23 @@ impl Reducible for Game {
                 }
             },
             EventType::Board => {
-                if let Payload::Vector(server_fields) = event.payload {
+                if let Payload::BoardState((server_fields, your_turn)) = event.payload {
                     log!("IN GAME: ", server_fields[0]);
+                    let mut player = self.player.clone();
+                    player.your_turn = your_turn;
                     return Self {
                         size: self.size.clone(),
                         fields: code_fields(&server_fields),
                         wss: self.wss.clone(),
-                        player: self.player.clone()
+                        player: player,
                     }.into()
                 }
             }
             EventType::Player => {
-                if let Payload::Player((name, side)) = event.payload {
+                if let Payload::Player(name) = event.payload {
                     let mut player = self.player.clone();
-                    log!("PLAYER REDUCE: ", &side);
-                    if let Ok(_) = player.set_player(name, Stone::from_str(side)){};
+                    log!("PLAYER REDUCE: ", &name);
+                    if let Ok(_) = player.set_player(name){};
                     return Self {
                         size: self.size.clone(),
                         fields: self.fields.clone(),
@@ -170,8 +167,9 @@ impl Reducible for Game {
             }
             EventType::BoardSize => {
                 if let Payload::Size(board_size) = event.payload {
+                    log!("NINE");
                     return Self {
-                        size: board_size,
+                        size: Some(board_size),
                         fields: self.fields.clone(),
                         wss: self.wss.clone(),
                         player: self.player.clone(),
@@ -192,7 +190,7 @@ pub fn init_fields(size: BoardSize) -> Vec<Field> {
                 owner: None,
             })
             .collect(),
-        BoardSize::Thirteen => (0..196)
+        BoardSize::Nineteen => (0..196)
             .map(|i| Field {
                 idx: i,
                 owner: None,
@@ -221,7 +219,7 @@ mod tests {
 
     #[test]
     fn test_init_fields_13x13() {
-        let fields = init_fields(BoardSize::Thirteen);
+        let fields = init_fields(BoardSize::Nineteen);
         assert!(
             fields
                 == (0..196)
