@@ -114,6 +114,7 @@ pub enum Payload {
     Player((String)),
     Vector(Vec<u64>),
     BoardState((Vec<u64>, bool)),
+    None
 }
 
 /// represents an even happening in the game, which has an action type and action details
@@ -131,7 +132,7 @@ impl Reducible for Game {
         match event.event_type {
             EventType::Place => {
                 if let Payload::Usize(payload) = event.payload {
-                    if fields[payload].owner.is_none() {
+                    if fields[payload].owner.is_none() && self.player.your_turn {
                             if let Some(s) = self.player.side {
                                 fields[payload].owner = Some(s);
                                 if let Ok(_) = self.wss.tx.clone().try_send(format_fields_to_string(&fields)) {};
@@ -144,6 +145,21 @@ impl Reducible for Game {
                     log!("IN GAME: ", server_fields[0]);
                     let mut player = self.player.clone();
                     player.your_turn = your_turn;
+
+                    if let None = &self.size {
+                        let size = if (*&server_fields.len() == 100) {
+                            BoardSize::Nine
+                        } else {
+                            BoardSize::Nineteen
+                        };
+
+                        return Self {
+                            size: Some(size),
+                            fields: code_fields(&server_fields),
+                            wss: self.wss.clone(),
+                            player: player,
+                        }.into()
+                    }
                     return Self {
                         size: self.size.clone(),
                         fields: code_fields(&server_fields),
@@ -166,10 +182,10 @@ impl Reducible for Game {
                 }
             }
             EventType::BoardSize => {
-                if let Payload::Size(board_size) = event.payload {
+                if let Payload::None = event.payload {
                     log!("NINE");
                     return Self {
-                        size: Some(board_size),
+                        size: self.size.clone(),
                         fields: self.fields.clone(),
                         wss: self.wss.clone(),
                         player: self.player.clone(),

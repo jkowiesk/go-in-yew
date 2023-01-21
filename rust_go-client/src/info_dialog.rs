@@ -25,7 +25,6 @@ pub fn info_dialog() -> Html {
     let is_board = match &game.size {
         Some(_) => true,
         None => false
-
     };
 
     if player == "None" || !is_board {

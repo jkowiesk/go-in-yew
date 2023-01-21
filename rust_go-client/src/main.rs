@@ -60,12 +60,12 @@ fn app() -> Html {
 
                 game.dispatch(GameAction {
                     event_type: EventType::Player,
-                    payload: Payload::Player((name)),
+                    payload: Payload::Player(name),
                 });
             } else if res["message_type"] == "initialize_board" {
                 game.dispatch(GameAction {
                     event_type: EventType::BoardSize,
-                    payload: Payload::Size(BoardSize::Nine),
+                    payload: Payload::None,
                 });
             }
 

@@ -15,7 +15,7 @@ pub fn start() -> Html {
     let onclick_9x9 = {
         let game = game.clone();
         Callback::from(move |_| {
-            let content = format!("\"board_size\": 81");
+            let content = format!("\"board_size\": 100");
             if let Ok(_) = game.wss.tx.clone().try_send(format_msg("initialize_board", &content)) {};
         })
     };
@@ -23,7 +23,7 @@ pub fn start() -> Html {
     let onclick_19x19 = {
         let game = game.clone();
         Callback::from(move |_| {
-            let content = format!("\"board_size\": 361");
+            let content = format!("\"board_size\": 400");
             if let Ok(_) = &game.wss.tx.clone().try_send(format_msg("initialize_board", &content)) {};
         })
     };
