@@ -1,11 +1,13 @@
 #[cfg(test)]
 pub mod tests;
 
-use std::{sync::{Arc, Mutex, MutexGuard}, process};
 use serde_json::{json, Value};
+use std::{
+    process,
+    sync::{Arc, Mutex, MutexGuard},
+};
 
-use ws::{Message, Sender, CloseCode};
-
+use ws::{CloseCode, Message, Sender};
 
 /// Represents the state of the game from the server's perspective.
 pub struct Game {
@@ -30,31 +32,35 @@ fn send_game_state(game: &MutexGuard<Game>, player: &Sender, your_turn: bool) {
 
 /// Starts the websocket server on the specified port
 fn start_server(server_url: &str) {
-
     let game = Arc::new(Mutex::new(Game {
         board: None,
         player1: None,
         player2: None,
         player1_turn: true,
         game_started: false,
-        board_initialized: false
+        board_initialized: false,
     }));
 
     ws::listen(server_url, |out| {
         let game = game.clone();
 
         move |msg: Message| {
-
             let json_str = msg.as_text().unwrap();
             let message_data: Value = serde_json::from_str(&json_str).unwrap();
-            let message_type: &Value = message_data.get("message_type").unwrap_or_else(|| return &Value::Null);
+            let message_type: &Value = message_data
+                .get("message_type")
+                .unwrap_or_else(|| return &Value::Null);
             if message_type.is_null() {
                 println!("Received message in invalid data format");
-                out.send(json!({
-                    "message_type": "error",
-                    "message": "missing 'message_type' is message"
-                }).to_string()).unwrap();
-                return Ok(())
+                out.send(
+                    json!({
+                        "message_type": "error",
+                        "message": "missing 'message_type' is message"
+                    })
+                    .to_string(),
+                )
+                .unwrap();
+                return Ok(());
             }
 
             if message_type == "stop_server" {
@@ -68,47 +74,76 @@ fn start_server(server_url: &str) {
             if message_type == "join_game" {
                 if game.player1.is_none() {
                     game.player1 = Some(out.clone());
-                    println!("First player joined the game, id: {}", out.connection_id());
+                    println!(
+                        "First player joined the game, id: {}",
+                        out.connection_id()
+                    );
 
-                    out.send(json!({
-                        "message_type": "join_game",
-                        "status": "success",
-                        "player": "first"
-                    }).to_string()).unwrap();
-                }
-                else if game.player2.is_none() {
+                    out.send(
+                        json!({
+                            "message_type": "join_game",
+                            "status": "success",
+                            "player": "first"
+                        })
+                        .to_string(),
+                    )
+                    .unwrap();
+                } else if game.player2.is_none() {
                     game.player2 = Some(out.clone());
-                    println!("Second player joined the game, id: {}", out.connection_id());
+                    println!(
+                        "Second player joined the game, id: {}",
+                        out.connection_id()
+                    );
 
-                    out.send(json!({
-                        "message_type": "join_game",
-                        "status": "success",
-                        "player": "second"
-                    }).to_string()).unwrap();
+                    out.send(
+                        json!({
+                            "message_type": "join_game",
+                            "status": "success",
+                            "player": "second"
+                        })
+                        .to_string(),
+                    )
+                    .unwrap();
 
                     if game.board_initialized {
-                        send_game_state(&game, &game.player1.as_ref().unwrap(), game.player1_turn);
-                        send_game_state(&game, &game.player2.as_ref().unwrap(), !game.player1_turn);
+                        send_game_state(
+                            &game,
+                            &game.player1.as_ref().unwrap(),
+                            game.player1_turn,
+                        );
+                        send_game_state(
+                            &game,
+                            &game.player2.as_ref().unwrap(),
+                            !game.player1_turn,
+                        );
                         game.game_started = true;
                     }
-
-                }
-                else {
-                    out.send(json!({
-                        "message_type": "join_game",
-                        "status": "error"
-                    }).to_string()).unwrap();
+                } else {
+                    out.send(
+                        json!({
+                            "message_type": "join_game",
+                            "status": "error"
+                        })
+                        .to_string(),
+                    )
+                    .unwrap();
                 }
             }
 
             if message_type == "initialize_board" {
-                let board_size_data: &Value = message_data.get("board_size").unwrap_or_else(|| return &Value::Null);
+                let board_size_data: &Value = message_data
+                    .get("board_size")
+                    .unwrap_or_else(|| return &Value::Null);
                 if board_size_data.is_null() {
-                    out.send(json!({
-                        "message_type": "initialize_board",
-                        "status": "error",
-                        "message": "couldn't get board_size data"
-                    }).to_string()).unwrap();
+                    out.send(
+                        json!({
+                            "message_type": "initialize_board",
+                            "status": "error",
+                            "message": "couldn't get board_size data"
+                        })
+                        .to_string(),
+                    )
+                    .unwrap();
                 }
                 let board_size: usize = board_size_data.as_u64().unwrap() as usize;
                 game.board = Some(vec![0; board_size]);
@@ -116,51 +151,88 @@ fn start_server(server_url: &str) {
 
                 game.board_initialized = true;
 
-                out.send(json!({
-                    "message_type": "initialize_board",
-                    "status": "success"
-                }).to_string()).unwrap();
+                out.send(
+                    json!({
+                        "message_type": "initialize_board",
+                        "status": "success"
+                    })
+                    .to_string(),
+                )
+                .unwrap();
 
                 if game.player2.is_some() {
-                    send_game_state(&game, &game.player1.as_ref().unwrap(), game.player1_turn);
-                    send_game_state(&game, &game.player2.as_ref().unwrap(), !game.player1_turn);
+                    send_game_state(
+                        &game,
+                        &game.player1.as_ref().unwrap(),
+                        game.player1_turn,
+                    );
+                    send_game_state(
+                        &game,
+                        &game.player2.as_ref().unwrap(),
+                        !game.player1_turn,
+                    );
                     game.game_started = true;
                 }
             }
 
             if message_type == "board_state" {
                 if !game.game_started {
-                    out.send(json!({
-                        "message_type": "board_state",
-                        "status": "error",
-                        "message": "game has not started",
-                    }).to_string()).unwrap();
+                    out.send(
+                        json!({
+                            "message_type": "board_state",
+                            "status": "error",
+                            "message": "game has not started",
+                        })
+                        .to_string(),
+                    )
+                    .unwrap();
                 }
 
-                let board_data: &Value = message_data.get("board").unwrap_or_else(|| return &Value::Null);
+                let board_data: &Value = message_data
+                    .get("board")
+                    .unwrap_or_else(|| return &Value::Null);
                 if board_data.is_null() {
-                    out.send(json!({
-                        "message_type": "board_state",
-                        "status": "error",
-                        "message": "couldn't get board data",
-                    }).to_string()).unwrap();
+                    out.send(
+                        json!({
+                            "message_type": "board_state",
+                            "status": "error",
+                            "message": "couldn't get board data",
+                        })
+                        .to_string(),
+                    )
+                    .unwrap();
                 }
-                let board: Vec<u8> = board_data.as_array().unwrap().into_iter().map(|x| {
-                    x.as_u64().unwrap() as u8
-                }).collect();
+                let board: Vec<u8> = board_data
+                    .as_array()
+                    .unwrap()
+                    .into_iter()
+                    .map(|x| x.as_u64().unwrap() as u8)
+                    .collect();
 
                 game.board = Some(board);
-                println!("Updated game board state: {:?}", game.board.as_ref().unwrap());
+                println!(
+                    "Updated game board state: {:?}",
+                    game.board.as_ref().unwrap()
+                );
 
                 game.player1_turn = !game.player1_turn;
 
-                send_game_state(&game, &game.player1.as_ref().unwrap(), game.player1_turn);
-                send_game_state(&game, &game.player2.as_ref().unwrap(), !game.player1_turn);
+                send_game_state(
+                    &game,
+                    &game.player1.as_ref().unwrap(),
+                    game.player1_turn,
+                );
+                send_game_state(
+                    &game,
+                    &game.player2.as_ref().unwrap(),
+                    !game.player1_turn,
+                );
             }
             drop(game);
             Ok(())
         }
-    }).unwrap();
+    })
+    .unwrap();
 }
 
 fn main() {
