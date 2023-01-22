@@ -255,4 +255,26 @@ mod tests {
         assert!(final_fields == decode_fields(&from_fields));
 
     }
+
+    #[test]
+    fn test_field_from_num() {
+        let final_field = Field {idx: 0, owner: Some(Stone::Black)};
+        assert!(final_field == Field::from_num(0, 1));
+
+    }
+
+    #[test]
+    fn test_stone_from_str() {
+        let final_stone = Stone::White;
+        let stone = Stone::from_str(String::from("white"));
+        assert!(final_stone == stone);
+
+    }
+
+    #[test]
+    fn test_format_fields_to_string() {
+        let final_string = "{\"message_type\": \"board_state\", \"board\": [0, 0, 2, 1]}";
+        let fields = vec![Field { idx: 0, owner: None }, Field { idx: 1, owner: None }, Field { idx: 2, owner: Some(Stone::White) }, Field { idx: 3, owner: Some(Stone::Black) }];
+        assert!(final_string == format_fields_to_string(&fields));
+    }
 }
