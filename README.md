@@ -10,6 +10,8 @@ Możliwe jest uruchomienie osobno klienta i serwera, jak i obu komponentów nara
 docker compose up
 ```
 
+> UWAGA: Po wykonaniu powyższej komendy należy odczekać dłuższą chwilę, gdyż pobieranie crate'ów w kontenerze zajmuje do kilku minut.  
+
 W celu uruchomienia tylko jednego komponentu, należy przejść do odpowiadającemgo mu podkatalogu poprzez wykonanie komendy 
 
 ```
@@ -70,7 +72,7 @@ która zbuduje dokumentację, a następnie otworzy ją w nowej karcie przegląda
 
 ## Testy jednostkowe
 
-Aby uruchomić testy jednostkowe dla klienta, należy przejść do odpowiedniego podkatalogu
+Aby uruchomić testy jednostkowe dla danego komponentu, należy przejść do odpowiedniego podkatalogu, np
 
 ```
 cd rust_go-client
