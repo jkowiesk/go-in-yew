@@ -118,7 +118,6 @@ fn start_server(server_url: &str) {
 
                 out.send(json!({
                     "message_type": "initialize_board",
-                    "board_size": board_size,
                     "status": "success"
                 }).to_string()).unwrap();
 
