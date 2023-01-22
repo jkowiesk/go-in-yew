@@ -1,7 +1,7 @@
 use yew::prelude::*;
 
 use crate::field::FieldFC;
-use crate::game::{Game};
+use crate::game::Game;
 
 #[function_component(Board9x9)]
 pub fn board_9x9() -> Html {

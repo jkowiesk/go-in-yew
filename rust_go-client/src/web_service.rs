@@ -1,11 +1,13 @@
-use futures::{channel::mpsc::{Sender}, SinkExt, StreamExt};
+use futures::{channel::mpsc::Sender, SinkExt, StreamExt};
+use gloo_console::log;
 use reqwasm::websocket::{futures::WebSocket, Message};
 use yew_agent::Dispatched;
-use gloo_console::log;
 
+use crate::{
+    event_bus::{EventBus, Request},
+    utils::format_msg,
+};
 use wasm_bindgen_futures::spawn_local;
-use crate::{event_bus::{EventBus, Request}, utils::format_msg};
-
 
 #[derive(Debug, Clone)]
 pub struct WebsocketService {
@@ -32,9 +34,9 @@ impl WebsocketService {
 
         spawn_local(async move {
             while let Some(msg) = read.next().await {
-                    if let Ok(Message::Text(text)) = msg {
-                        log!("From SERVER: ", &text);
-                        event_bus.send(Request::EventBusMsg(text));
+                if let Ok(Message::Text(text)) = msg {
+                    log!("From SERVER: ", &text);
+                    event_bus.send(Request::EventBusMsg(text));
                 }
             }
             log!("WebSocket Closed");

@@ -1,7 +1,7 @@
 use std::rc::Rc;
 use yew::prelude::*;
 
-use crate::{web_service::WebsocketService, player::Player, utils::format_msg};
+use crate::{player::Player, utils::format_msg, web_service::WebsocketService};
 
 /// represents the size of the board, which can be chosen at the beginng of the game
 #[derive(Clone, Debug, PartialEq)]
@@ -50,10 +50,7 @@ impl Field {
             owner = Some(Stone::White);
         }
 
-        Self {
-            idx,
-            owner
-        }
+        Self { idx, owner }
     }
 }
 
@@ -91,7 +88,10 @@ fn decode_fields(fields: &Vec<Field>) -> Vec<u64> {
 
 fn format_fields_to_string(fields: &Vec<Field>) -> String {
     let new_fields = decode_fields(&fields);
-    format_msg("board_state", &format!("\"board\": {:?}", new_fields))
+    format_msg(
+        "board_state",
+        &format!("\"board\": {:?}", new_fields),
+    )
 }
 
 /// represents an action that a player can take during the game
@@ -100,7 +100,6 @@ pub enum EventType {
     Board,
     Player,
     BoardSize,
-
 }
 
 pub enum Payload {
@@ -110,7 +109,7 @@ pub enum Payload {
     Player(String),
     Vector(Vec<u64>),
     BoardState((Vec<u64>, bool)),
-    None
+    None,
 }
 
 /// represents an even happening in the game, which has an action type and action details
@@ -129,13 +128,19 @@ impl Reducible for Game {
             EventType::Place => {
                 if let Payload::Usize(payload) = event.payload {
                     if fields[payload].owner.is_none() && self.player.your_turn {
-                            if let Some(s) = self.player.side {
-                                fields[payload].owner = Some(s);
-                                if let Ok(_) = self.wss.tx.clone().try_send(format_fields_to_string(&fields)) {};
-                            }
+                        if let Some(s) = self.player.side {
+                            fields[payload].owner = Some(s);
+                            if let Ok(_) = self
+                                .wss
+                                .tx
+                                .clone()
+                                .try_send(format_fields_to_string(&fields))
+                            {
+                            };
+                        }
                     }
                 }
-            },
+            }
             EventType::Board => {
                 if let Payload::BoardState((server_fields, your_turn)) = event.payload {
                     let mut player = self.player.clone();
@@ -153,26 +158,29 @@ impl Reducible for Game {
                             fields: code_fields(&server_fields),
                             wss: self.wss.clone(),
                             player: player,
-                        }.into()
+                        }
+                        .into();
                     }
                     return Self {
                         size: self.size.clone(),
                         fields: code_fields(&server_fields),
                         wss: self.wss.clone(),
                         player: player,
-                    }.into()
+                    }
+                    .into();
                 }
             }
             EventType::Player => {
                 if let Payload::Player(name) = event.payload {
                     let mut player = self.player.clone();
-                    if let Ok(_) = player.set_player(name){};
+                    if let Ok(_) = player.set_player(name) {};
                     return Self {
                         size: self.size.clone(),
                         fields: self.fields.clone(),
                         wss: self.wss.clone(),
-                        player
-                    }.into()
+                        player,
+                    }
+                    .into();
                 }
             }
             EventType::BoardSize => {
@@ -182,7 +190,8 @@ impl Reducible for Game {
                         fields: self.fields.clone(),
                         wss: self.wss.clone(),
                         player: self.player.clone(),
-                    }.into()
+                    }
+                    .into();
                 }
             }
         };
@@ -242,25 +251,59 @@ mod tests {
 
     #[test]
     fn test_code_fields() {
-        let final_fields = vec![Field { idx: 0, owner: None }, Field { idx: 1, owner: None }, Field { idx: 2, owner: Some(Stone::White) }, Field { idx: 3, owner: Some(Stone::Black) }];
+        let final_fields = vec![
+            Field {
+                idx: 0,
+                owner: None,
+            },
+            Field {
+                idx: 1,
+                owner: None,
+            },
+            Field {
+                idx: 2,
+                owner: Some(Stone::White),
+            },
+            Field {
+                idx: 3,
+                owner: Some(Stone::Black),
+            },
+        ];
         let from_fields: Vec<u64> = vec![0, 0, 2, 1];
         assert!(final_fields == code_fields(&from_fields));
-
     }
 
     #[test]
     fn test_decode_fields() {
         let final_fields: Vec<u64> = vec![0, 0, 2, 1];
-        let from_fields = vec![Field { idx: 0, owner: None }, Field { idx: 1, owner: None }, Field { idx: 2, owner: Some(Stone::White) }, Field { idx: 3, owner: Some(Stone::Black) }];
+        let from_fields = vec![
+            Field {
+                idx: 0,
+                owner: None,
+            },
+            Field {
+                idx: 1,
+                owner: None,
+            },
+            Field {
+                idx: 2,
+                owner: Some(Stone::White),
+            },
+            Field {
+                idx: 3,
+                owner: Some(Stone::Black),
+            },
+        ];
         assert!(final_fields == decode_fields(&from_fields));
-
     }
 
     #[test]
     fn test_field_from_num() {
-        let final_field = Field {idx: 0, owner: Some(Stone::Black)};
+        let final_field = Field {
+            idx: 0,
+            owner: Some(Stone::Black),
+        };
         assert!(final_field == Field::from_num(0, 1));
-
     }
 
     #[test]
@@ -268,13 +311,29 @@ mod tests {
         let final_stone = Stone::White;
         let stone = Stone::from_str(String::from("white"));
         assert!(final_stone == stone);
-
     }
 
     #[test]
     fn test_format_fields_to_string() {
         let final_string = "{\"message_type\": \"board_state\", \"board\": [0, 0, 2, 1]}";
-        let fields = vec![Field { idx: 0, owner: None }, Field { idx: 1, owner: None }, Field { idx: 2, owner: Some(Stone::White) }, Field { idx: 3, owner: Some(Stone::Black) }];
+        let fields = vec![
+            Field {
+                idx: 0,
+                owner: None,
+            },
+            Field {
+                idx: 1,
+                owner: None,
+            },
+            Field {
+                idx: 2,
+                owner: Some(Stone::White),
+            },
+            Field {
+                idx: 3,
+                owner: Some(Stone::Black),
+            },
+        ];
         assert!(final_string == format_fields_to_string(&fields));
     }
 }

@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use crate::game::{GameAction, EventType, Field, Game, Payload, Stone};
+use crate::game::{EventType, Field, Game, GameAction, Payload, Stone};
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
@@ -26,10 +26,28 @@ pub fn field_fc(props: &Props) -> Html {
 
     let class_name = match &field.owner {
         Some(stone) => match stone {
-            Stone::Black => if *size == 9 {"field--9x9 field--black"} else {"field--19x19 field--black"},
-            Stone::White => if *size == 9 {"field--9x9 field--white"} else {"field--19x19 field--white"},
+            Stone::Black => {
+                if *size == 9 {
+                    "field--9x9 field--black"
+                } else {
+                    "field--19x19 field--black"
+                }
+            }
+            Stone::White => {
+                if *size == 9 {
+                    "field--9x9 field--white"
+                } else {
+                    "field--19x19 field--white"
+                }
+            }
         },
-        None => if *size == 9 {"field--9x9 field--empty"} else {"field--19x19 field--empty"},
+        None => {
+            if *size == 9 {
+                "field--9x9 field--empty"
+            } else {
+                "field--19x19 field--empty"
+            }
+        }
     };
 
     html! {

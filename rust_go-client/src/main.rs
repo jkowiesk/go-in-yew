@@ -1,28 +1,27 @@
 pub mod board;
-pub mod game;
-pub mod web_service;
-pub mod field;
-pub mod player;
-pub mod event_bus;
-pub mod start;
-pub mod board9x9;
 pub mod board19x19;
-pub mod utils;
+pub mod board9x9;
+pub mod event_bus;
+pub mod field;
+pub mod game;
 pub mod info_dialog;
+pub mod player;
+pub mod start;
+pub mod utils;
+pub mod web_service;
 
 use event_bus::EventBus;
 use info_dialog::InfoDialog;
-use serde_json::{Value, from_value};
+use serde_json::{from_value, Value};
 use start::Start;
 use yew::prelude::*;
 use yew::{function_component, html};
 
 use board::BoardFC;
-use game::{init_fields, BoardSize, Game, GameAction, EventType, Payload};
+use game::{init_fields, BoardSize, EventType, Game, GameAction, Payload};
+use player::Player;
 use web_service::WebsocketService;
 use yew_agent::{use_bridge, UseBridgeHandle};
-use player::Player;
-
 
 #[function_component(App)]
 fn app() -> Html {
@@ -33,7 +32,6 @@ fn app() -> Html {
         player: Player::new().to_owned(),
     });
 
-
     {
         let game = game.clone();
         let _: UseBridgeHandle<EventBus> = use_bridge(move |response: String| {
@@ -42,10 +40,13 @@ fn app() -> Html {
 
             if res["message_type"] == "board_state" {
                 let board = res["board"].as_array().unwrap();
-                let board: Vec<u64> = board.into_iter().map(|value| {
-                    let num: u64 = from_value(value.clone()).unwrap();
-                    num
-                }).collect();
+                let board: Vec<u64> = board
+                    .into_iter()
+                    .map(|value| {
+                        let num: u64 = from_value(value.clone()).unwrap();
+                        num
+                    })
+                    .collect();
 
                 let turn = res["your_turn"].as_bool().unwrap();
 
@@ -66,10 +67,8 @@ fn app() -> Html {
                     payload: Payload::None,
                 });
             }
-
         });
     }
-
 
     html! {
         <ContextProvider<UseReducerHandle<Game>> context={game}>
