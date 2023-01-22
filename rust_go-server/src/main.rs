@@ -1,4 +1,3 @@
-pub mod rules;
 #[cfg(test)]
 pub mod tests;
 
@@ -63,7 +62,7 @@ fn start_server(server_url: &str) {
                 out.close(CloseCode::Normal).unwrap();
                 process::exit(0);
             }
-            
+
             let mut game = game.lock().unwrap();
 
             if message_type == "join_game" {
@@ -76,7 +75,7 @@ fn start_server(server_url: &str) {
                         "status": "success",
                         "player": "first"
                     }).to_string()).unwrap();
-                } 
+                }
                 else if game.player2.is_none() {
                     game.player2 = Some(out.clone());
                     println!("Second player joined the game, id: {}", out.connection_id());
@@ -145,7 +144,7 @@ fn start_server(server_url: &str) {
                         "status": "error",
                         "message": "couldn't get board data",
                     }).to_string()).unwrap();
-                } 
+                }
                 let board: Vec<u8> = board_data.as_array().unwrap().into_iter().map(|x| {
                     x.as_u64().unwrap() as u8
                 }).collect();

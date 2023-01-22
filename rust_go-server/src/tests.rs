@@ -10,7 +10,7 @@ fn test_player_one_join_game() -> Result<()> {
     thread::spawn(move || {
         start_server("127.0.0.1:8001");
     });
-    
+
     ws::connect("ws://127.0.0.1:8001", |out| {
         let data = json!({
             "message_type": "join_game",

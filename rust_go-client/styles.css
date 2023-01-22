@@ -69,8 +69,7 @@ main {
   height: 100%;
 }
 
-.board {
-  position: relative;
+.board--9x9 {
   width: 960px;
   height: 960px;
 }
@@ -108,6 +107,49 @@ main {
   border-radius: 100%;
   width: 60px;
   height: 60px;
+  z-index: 2;
+}
+
+/* size 19x19 */
+.board--19x19 {
+  width: 931px;
+  height: 931px;
+}
+
+.board__back--19x19 {
+  display: grid;
+  grid-template-rows: repeat(19, 1fr);
+  grid-template-columns: repeat(19, 1fr);
+  background: hsl(35, 34%, 56%);
+  width: 912px;
+  height: 912px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+
+.board__back--19x19__square {
+  width: 48px;
+  height: 48px;
+  border: 1px solid black;
+  position: relative;
+}
+
+.board__fields--19x19 {
+  display: grid;
+  grid-template-rows: repeat(20, 1fr);
+  grid-template-columns: repeat(20, 1fr);
+  gap: 28px;
+  height: 100%;
+}
+
+.field--19x19 {
+  border-radius: 100%;
+  width: 19px;
+  height: 19px;
   z-index: 2;
 }
 
