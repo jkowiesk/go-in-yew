@@ -43,7 +43,7 @@ fn test_two_players_join_game() -> Result<()> {
     });
 
     thread::sleep(time::Duration::from_millis(500));
-
+    
     ws::connect("ws://127.0.0.1:8002", |out| {
         let data = json!({
             "message_type": "join_game",
@@ -91,7 +91,7 @@ fn test_third_player_tries_to_join_game() -> Result<()> {
     thread::spawn(move || {
         start_server("127.0.0.1:8003");
     });
-
+    
     thread::sleep(time::Duration::from_millis(500));
 
     ws::connect("ws://127.0.0.1:8003", |out| {
@@ -162,7 +162,7 @@ fn test_join_game_and_init_board() -> Result<()> {
     });
 
     thread::sleep(time::Duration::from_millis(500));
-
+    
     ws::connect("ws://127.0.0.1:8004", |out| {
         let data = json!({
             "message_type": "join_game",
@@ -216,7 +216,7 @@ fn test_game_start() -> Result<()> {
     });
 
     thread::sleep(time::Duration::from_millis(500));
-
+    
     ws::connect("ws://127.0.0.1:8006", |out| {
         let data = json!({
             "message_type": "join_game",
