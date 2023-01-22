@@ -146,6 +146,15 @@ Kiedy klient pierwszy dołaczy do gry, dostaje od serwera wiadomość którym je
 
 Kiedy klient dołączy do gry jako drugi - powinien wtedy oczekiwać na wiadomość o stanie gry.
 
+Każdy kolejny klient który spróbuje się połączyć, otrzyma wiadmość o błędzie:
+
+```
+{
+    "message_type": "join_game",
+    "status": "error"
+}
+```
+
 
 ### initialize_board
 
@@ -170,8 +179,65 @@ Kiedy wysłano poprawną wiadomość do serwera, i serwerowi udało się zainic
 ```
 {
     "message_type": "initialize_board",
-    "status": "error"
+    "status": "error",
+    "message": "couldn't get board_size data"
 }
 ```
 
 Kiedy nie udało się zainicjalizować planszy ze względu na zły format danych wiadomości.
+
+### board_size
+
+Do przekazywania informacji o stanie planszy używane są wiadmości typu `board_size`.  
+
+```
+{
+    "message_type": "board_state",
+    "board": [0, 0, 0, 0, 0, 0, 0, 0, 0],
+}
+```
+
+W ten sposób wyglądają wiadmości przesyłane przez klienta.
+
+```
+{
+    "message_type": "board_state",
+    "board": [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    "your_turn": true
+}
+```
+
+Wiadomości przesyłane przez serwer posiadają dodatkowe pole `your_turn`, które informuje klienta, czy jest teraz jego tura czy nie.
+
+Możliwe jest też otrzymanie przez klienta jednej z wiadomości o błędzie:
+
+```
+{
+    "message_type": "board_state",
+    "status": "error",
+    "message": "game has not started",
+}
+```
+
+Jeżeli klient próbował wysłać informację o stanie planszy zanim rozpoczęła się gra.
+
+
+```
+{
+    "message_type": "board_state",
+    "status": "error",
+    "message": "couldn't get board data",
+}
+```
+
+Jeżeli serwerowi nie udało się odczytać danych o planszy.
+
+### stop_server
+
+W sytuacji, gdy wymagane jest zdalne wyłączenie serwera, klient może wysłać wiadmość typu `stop_server`:
+
+```
+{
+    "message_type": "stop_server"
+}
+```
