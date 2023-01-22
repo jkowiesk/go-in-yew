@@ -22,8 +22,6 @@ use game::{init_fields, BoardSize, Game, GameAction, EventType, Payload};
 use web_service::WebsocketService;
 use yew_agent::{use_bridge, UseBridgeHandle};
 use player::Player;
-use gloo_console::log;
-use gloo_dialogs::alert;
 
 
 #[function_component(App)]

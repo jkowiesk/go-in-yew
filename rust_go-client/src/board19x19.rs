@@ -2,7 +2,6 @@ use yew::prelude::*;
 
 use crate::field::FieldFC;
 use crate::game::{Game};
-use gloo_console::log;
 
 #[function_component(Board19x19)]
 pub fn board_19x19() -> Html {

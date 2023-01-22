@@ -1,4 +1,4 @@
-use futures::{channel::mpsc::{Sender, Receiver}, SinkExt, StreamExt};
+use futures::{channel::mpsc::{Sender}, SinkExt, StreamExt};
 use reqwasm::websocket::{futures::WebSocket, Message};
 use yew_agent::Dispatched;
 use gloo_console::log;
@@ -23,10 +23,9 @@ impl WebsocketService {
 
         spawn_local(async move {
             let join = format_msg("join_game", "");
-            log!(&join);
             write.send(Message::Text(String::from(join))).await.unwrap();
             while let Some(s) = in_rx.next().await {
-                log!("got event from channel! ", &s);
+                log!("Sending to SERVER: ", &s);
                 write.send(Message::Text(s)).await.unwrap();
             }
         });
@@ -46,7 +45,7 @@ impl WebsocketService {
 }
 
 impl PartialEq for WebsocketService {
-    fn eq(&self, other: &Self) -> bool {
+    fn eq(&self, _other: &Self) -> bool {
         true
     }
 }

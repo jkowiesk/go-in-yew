@@ -1,7 +1,3 @@
-use futures::channel::mpsc::{Receiver, Sender};
-use gloo_console::log;
-use serde::{Deserialize, Serialize};
-use serde_json::{self, Value};
 use std::rc::Rc;
 use yew::prelude::*;
 
@@ -94,7 +90,7 @@ fn decode_fields(fields: &Vec<Field>) -> Vec<u64> {
 }
 
 fn format_fields_to_string(fields: &Vec<Field>) -> String {
-    let mut new_fields = decode_fields(&fields);
+    let new_fields = decode_fields(&fields);
     format_msg("board_state", &format!("\"board\": {:?}", new_fields))
 }
 
@@ -111,7 +107,7 @@ pub enum Payload {
     Text(String),
     Usize(usize),
     Size(BoardSize),
-    Player((String)),
+    Player(String),
     Vector(Vec<u64>),
     BoardState((Vec<u64>, bool)),
     None
@@ -142,12 +138,11 @@ impl Reducible for Game {
             },
             EventType::Board => {
                 if let Payload::BoardState((server_fields, your_turn)) = event.payload {
-                    log!("IN GAME: ", server_fields[0]);
                     let mut player = self.player.clone();
                     player.your_turn = your_turn;
 
                     if let None = &self.size {
-                        let size = if (*&server_fields.len() == 100) {
+                        let size = if *&server_fields.len() == 100 {
                             BoardSize::Nine
                         } else {
                             BoardSize::Nineteen
@@ -171,7 +166,6 @@ impl Reducible for Game {
             EventType::Player => {
                 if let Payload::Player(name) = event.payload {
                     let mut player = self.player.clone();
-                    log!("PLAYER REDUCE: ", &name);
                     if let Ok(_) = player.set_player(name){};
                     return Self {
                         size: self.size.clone(),
@@ -183,7 +177,6 @@ impl Reducible for Game {
             }
             EventType::BoardSize => {
                 if let Payload::None = event.payload {
-                    log!("NINE");
                     return Self {
                         size: self.size.clone(),
                         fields: self.fields.clone(),
@@ -245,5 +238,21 @@ mod tests {
                     })
                     .collect::<Vec<Field>>()
         );
+    }
+
+    #[test]
+    fn test_code_fields() {
+        let final_fields = vec![Field { idx: 0, owner: None }, Field { idx: 1, owner: None }, Field { idx: 2, owner: Some(Stone::White) }, Field { idx: 3, owner: Some(Stone::Black) }];
+        let from_fields: Vec<u64> = vec![0, 0, 2, 1];
+        assert!(final_fields == code_fields(&from_fields));
+
+    }
+
+    #[test]
+    fn test_decode_fields() {
+        let final_fields: Vec<u64> = vec![0, 0, 2, 1];
+        let from_fields = vec![Field { idx: 0, owner: None }, Field { idx: 1, owner: None }, Field { idx: 2, owner: Some(Stone::White) }, Field { idx: 3, owner: Some(Stone::Black) }];
+        assert!(final_fields == decode_fields(&from_fields));
+
     }
 }

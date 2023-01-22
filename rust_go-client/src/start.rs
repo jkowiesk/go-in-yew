@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use crate::{game::{Game}, utils::format_msg, player};
+use crate::{game::{Game}, utils::format_msg};
 
 #[derive(Properties, PartialEq)]
 pub struct Props {

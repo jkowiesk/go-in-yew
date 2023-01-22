@@ -1,6 +1,5 @@
 use std::collections::HashSet;
 
-use gloo_console::log;
 use serde::{Deserialize, Serialize};
 use yew_agent::{Agent, AgentLink, Context, HandlerId};
 

@@ -1,8 +1,5 @@
-use serde::{Deserialize, Serialize};
-use web_sys::HtmlInputElement;
-use yew::prelude::*;
-use yew_agent::{Bridge, Bridged};
 use crate::game::Stone;
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Player {
     pub name: Option<String>,
