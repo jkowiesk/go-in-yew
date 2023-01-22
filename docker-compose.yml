@@ -1,11 +1,13 @@
 services:
-  server:
-    build: ./rust_go-server
-    ports:
-      - '30080:30080'
   client:
     build: ./rust_go-client
     ports:
       - '8080:8080'
     volumes:
       - ./rust_go-client:/app
+    depends_on:
+      - server
+  server:
+    build: ./rust_go-server
+    ports:
+      - '8888:8888'

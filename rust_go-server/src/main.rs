@@ -164,5 +164,5 @@ fn start_server(server_url: &str) {
 }
 
 fn main() {
-    start_server("127.0.0.1:8888");
+    start_server("0.0.0.0:8888");
 }
