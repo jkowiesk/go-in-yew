@@ -60,6 +60,10 @@ Po wykonaniu tych kroków możemy uruchomić program wykonując komendę
 trunk serve
 ```
 
+## Dostęp do aplikacji
+
+Po tym jak komponenty aplikacji zostaną uruchomione, aby rozpocząć rozgrywkę należy otworzyć stronę `localhost:8080` w dwóch kartach przeglądarki. Pierwsza otwarta karta będzie reprezentować gracza pierwszego, do którego będzie również należeć decyzja o wielkości planszy. Na drugiej karcie wykonywać ruchy będzie mógł gracz drugi.
+
 ## Dokumentacja projektu
 
 W celu utworzenia dokumentacji technicznej korzystamy z `cargo`, które posiada możliwość automatycznej generacji dokumentacji. W celu skorzystania z niej należy przejść do podfolderu odpowiadającego komponentowi którego dokumentację chcemy wygenerować i wykonać komendę
