@@ -29,7 +29,7 @@ pub fn field_fc(props: &Props) -> Html {
             Stone::Black => if *size == 9 {"field--9x9 field--black"} else {"field--19x19 field--black"},
             Stone::White => if *size == 9 {"field--9x9 field--white"} else {"field--19x19 field--white"},
         },
-        None => if *size == 9 {"field--9x9 field--none"} else {"field--19x19 field--none"},
+        None => if *size == 9 {"field--9x9 field--empty"} else {"field--19x19 field--empty"},
     };
 
     html! {
