@@ -1,103 +1,111 @@
-# Go w architekturze klient-serwer
+<a name="readme-top"></a>
 
-Projekt składa się z dwóch komponentów - klienta (kod źródłowy w katalogu *rust_go-client*) oraz serwera (kod źródłowy w katalogu *rust_go-server*). 
+<div align="center">
+  <a href="https://github.com/jkowiesk/go-in-yew">
+    <img src="https://i.postimg.cc/qqKwfdwZ/white.png" alt="white side screen" />
+  </a>
 
-## Uruchamianie aplikacji
+  <h3 align="center">Go In Yew</h3>
 
-Możliwe jest uruchomienie osobno klienta i serwera, jak i obu komponentów naraz. Budowanie i uruchamianie projektu zostało zautomatyzowane przy użyciu [`docker compose`](https://docs.docker.com/compose/install/). Aby uruchomić oba komponenty, znajdując się w katalogu głównym repozytorium należy wykonać komendę
+  <p align="center">
+    Game of Go written in Yew framework, which is written in rust
+    <br />
+    <a href="https://github.com/jkowiesk/go-in-yew/issues">Report Bug</a>
+  </p>
+</div>
+
+### About The Project
+
+It consists of two applications, first is _./rust_go-client_ which is GUI for players to play game, second is _./rust_go-server_ which  is simple websocket server for accepting and processing players moves. Frontend connects to server and sends messages using websockets. Yew project compiles to WASM, which can be easily run in (Web browser)  
+
+### Built With
+
+- [![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=for-the-badge&logo=rust&logoColor=white)][rust-url]
+- [![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=for-the-badge&logo=rust&logoColor=white)]
+
+### Running the application
+
+It is possible to run the client and server separately, as well as both components at the same time. Building and running the project has been automated using [`docker compose`](https://docs.docker.com/compose/install/). To launch both components, located in the root directory of the repository, run the command
 
 ```
 docker compose up
 ```
 
-> UWAGA: Po wykonaniu powyższej komendy należy odczekać dłuższą chwilę, gdyż pobieranie crate'ów w kontenerze zajmuje do kilku minut.  
+> NOTE: After executing the above command, wait for a long while, as it takes up to several minutes for the container to download the crate.  
 
-W celu uruchomienia tylko jednego komponentu, należy przejść do odpowiadającemgo mu podkatalogu poprzez wykonanie komendy 
+In order to run only one component, go to the corresponding subdirectory by executing the command 
 
 ```
 cd rust_go-client
 ```
 
-lub 
+or 
 
 ```
 cd rust_go-server
 ``` 
 
-i z poziomu danego podkatalogu wykonać
+and from within the subdirectory in question, execute
 
 ```
 docker compose up
 ```
 
-Możliwe jest również uruchomienie komponentów bez użycia Dockera. W tym przypadku należy po pierwsze zainstalować narzędzie [`rustup`](https://www.rust-lang.org/tools/install). Dalsze kroki jakie trzeba wykonać różnią się dla poszczególnych komponentów.
+It is also possible to run components without using Docker. In this case, first install the [`rustup`](https://www.rust-lang.org/tools/install) tool. The further steps you need to perform differ for each component.
 
-W celu uruchomienia serwera wystarczy przejść do podkatalogu `rust_go-server` i wykonać komendę
+To start the server, just go to the `rust_go-server` subdirectory and execute the command
 
 ```
 cargo run
 ```
 
-która zbuduje i uruchomi program.
+which will build and run the program.
 
-> UWAGA: Jeżeli wykonanie komendy `cargo run` zakończy się błedem ``` error: failed to run custom build command for `openssl-sys v0.9.79` ```, należy doinstalować pakiety OpenSSL. Przykładowo w systemie Ubuntu można to zrobić poprzez `sudo apt install libssl-dev`. 
+> NOTE: If executing the `cargo run` command ends with an error `` error: failed to run custom build command for `openssl-sys v0.9.79` ``, you need to install OpenSSL packages. For example, on an Ubuntu system, this can be done via `sudo apt install libssl-dev`. 
 
-W przypadku klienta przed uruchomieniem należy wykonać kilka dodatkowych kroków. Po pierwsze należy dodać WASM jako cel budowania dla Rusta poprzez komendę
+In the case of the client, a few additional steps need to be taken before launching. First, add WASM as a build target for Rust via the command.
 
 ```
 rustup target add wasm32-unknown-unknown
 ```
 
-Następnie należy zainstalować [`trunk`](https://trunkrs.dev/) - bundler aplikacji wykorzysujących WASM dla Rusta.
+Next, install [`trunk`](https://trunkrs.dev/) - a bundler of applications that exploit WASM for Rust.
 
 ```
 cargo install trunk
 ```
 
-Po wykonaniu tych kroków możemy uruchomić program wykonując komendę
+After completing these steps, we can run the program by executing the command
 
 ```
 trunk serve
 ```
 
-## Dostęp do aplikacji
+## Access the application
 
-Po tym jak komponenty aplikacji zostaną uruchomione, aby rozpocząć rozgrywkę należy otworzyć stronę `localhost:8080` w dwóch kartach przeglądarki. Pierwsza otwarta karta będzie reprezentować gracza pierwszego, do którego będzie również należeć decyzja o wielkości planszy. Na drugiej karcie wykonywać ruchy będzie mógł gracz drugi.
+After the components of the application are started, to start the gameplay we need to open the `localhost:8080` page in two browser tabs. The first open tab will represent the first player, who will also have the decision on the size of the board. On the second card, the second player will be able to make moves.
 
-## Dokumentacja projektu
+## Documentation of the project
 
-W celu utworzenia dokumentacji technicznej korzystamy z `cargo`, które posiada możliwość automatycznej generacji dokumentacji. W celu skorzystania z niej należy przejść do podfolderu odpowiadającego komponentowi którego dokumentację chcemy wygenerować i wykonać komendę
+To create technical documentation we use `cargo`, which has the ability to automatically generate documentation. To use it, go to the subfolder corresponding to the component whose documentation we want to generate and execute the command
 
 ```
 cargo doc --no-deps --open
 ```
 
-która zbuduje dokumentację, a następnie otworzy ją w nowej karcie przeglądarki.
+which will build the documentation and then open it in a new browser tab.
 
-## Testy jednostkowe
+## Unit tests
 
-Aby uruchomić testy jednostkowe dla danego komponentu, należy przejść do odpowiedniego podkatalogu, np
+To run unit tests for a component, navigate to the appropriate subdirectory, e.g.
 
 ```
 cd rust_go-client
 ```
 
-i wykonać komendę
+and execute the command
 
-```
-cargo test
-```
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<!-- MARKDOWN LINKS & IMAGES -->
 
-## Formatowanie
-
-Aby zachować spójne formatowanie korzystamy z narzędzia `cargo-fmt`. Przed użyciem należy je zainstalować poprzez
-
-```
-rustup component add rustfmt
-```
-
-Następnie po wykonaniu zmian w kodzie, należy wykonać
-
-```
-cargo fmt
-```
+[rust-url]: https://www.rust-lang.org
